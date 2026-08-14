@@ -1,0 +1,752 @@
+{
+  "classifier_runs_completed": 20,
+  "classifier_runs_requested": 20,
+  "config": {
+    "activation": "prelu",
+    "base_model": "GCNConv",
+    "batch_size": 0,
+    "drop_edge_rate_1": 0.2,
+    "drop_edge_rate_2": 0.0,
+    "drop_feature_rate_1": 0.3,
+    "drop_feature_rate_2": 0.2,
+    "learning_rate": 0.001,
+    "num_epochs": 200,
+    "num_hidden": 256,
+    "num_layers": 2,
+    "num_proj_hidden": 256,
+    "seed": 38108,
+    "tau": 0.9,
+    "weight_decay": 1e-05
+  },
+  "data_root": "/root/autodl-tmp/G-02-baseline-data/pyg",
+  "dataset": "CiteSeer",
+  "encoder": {
+    "dataset": "CiteSeer",
+    "encoder_runs": 1,
+    "encoder_seed": 38108,
+    "epochs": 200,
+    "final_loss": 7.842897891998291,
+    "loss_first": 8.802780151367188,
+    "loss_history": [
+      8.802780151367188,
+      8.802714347839355,
+      8.802570343017578,
+      8.802149772644043,
+      8.800662994384766,
+      8.795873641967773,
+      8.783608436584473,
+      8.751509666442871,
+      8.674566268920898,
+      8.532106399536133,
+      8.4107666015625,
+      8.419037818908691,
+      8.437079429626465,
+      8.375274658203125,
+      8.32233715057373,
+      8.238725662231445,
+      8.211365699768066,
+      8.198931694030762,
+      8.170654296875,
+      8.161670684814453,
+      8.16162395477295,
+      8.126443862915039,
+      8.114195823669434,
+      8.106724739074707,
+      8.09343147277832,
+      8.086488723754883,
+      8.06616497039795,
+      8.056553840637207,
+      8.044692039489746,
+      8.026890754699707,
+      8.01295280456543,
+      8.006616592407227,
+      8.00148868560791,
+      7.979561805725098,
+      7.977348327636719,
+      7.970003128051758,
+      7.961273193359375,
+      7.958645820617676,
+      7.963888168334961,
+      7.944674968719482,
+      7.95629358291626,
+      7.947674751281738,
+      7.943692207336426,
+      7.94069766998291,
+      7.954750061035156,
+      7.943349361419678,
+      7.95199728012085,
+      7.933774471282959,
+      7.933440208435059,
+      7.9489665031433105,
+      7.930883884429932,
+      7.930926322937012,
+      7.934340476989746,
+      7.938401699066162,
+      7.935519218444824,
+      7.9296183586120605,
+      7.930641174316406,
+      7.931037902832031,
+      7.924643516540527,
+      7.929966926574707,
+      7.927791595458984,
+      7.93344259262085,
+      7.920726299285889,
+      7.9228692054748535,
+      7.926278114318848,
+      7.924262046813965,
+      7.919604301452637,
+      7.925353050231934,
+      7.925490379333496,
+      7.920133113861084,
+      7.9201250076293945,
+      7.923454284667969,
+      7.926591396331787,
+      7.915668964385986,
+      7.922234535217285,
+      7.921579360961914,
+      7.916778564453125,
+      7.91483736038208,
+      7.927982330322266,
+      7.917427062988281,
+      7.914096832275391,
+      7.912664890289307,
+      7.914791584014893,
+      7.913852691650391,
+      7.909947872161865,
+      7.910889625549316,
+      7.912263870239258,
+      7.907730579376221,
+      7.904215335845947,
+      7.904871940612793,
+      7.9125447273254395,
+      7.903373718261719,
+      7.898768901824951,
+      7.901538848876953,
+      7.899255752563477,
+      7.90039587020874,
+      7.892144203186035,
+      7.890367031097412,
+      7.897759437561035,
+      7.885205268859863,
+      7.882789134979248,
+      7.885679721832275,
+      7.876955032348633,
+      7.880218505859375,
+      7.878242015838623,
+      7.8784685134887695,
+      7.875707149505615,
+      7.876150608062744,
+      7.883715629577637,
+      7.875316143035889,
+      7.87672233581543,
+      7.880383014678955,
+      7.8856353759765625,
+      7.877092361450195,
+      7.880952835083008,
+      7.881234645843506,
+      7.877640724182129,
+      7.878994941711426,
+      7.879832744598389,
+      7.883237838745117,
+      7.881997585296631,
+      7.875101089477539,
+      7.870133399963379,
+      7.881971836090088,
+      7.876306533813477,
+      7.871477127075195,
+      7.873368263244629,
+      7.874798774719238,
+      7.875399112701416,
+      7.875937461853027,
+      7.873325347900391,
+      7.874091148376465,
+      7.870578289031982,
+      7.875302314758301,
+      7.871979713439941,
+      7.87227201461792,
+      7.8677754402160645,
+      7.873301029205322,
+      7.875348091125488,
+      7.868339538574219,
+      7.8677568435668945,
+      7.8710808753967285,
+      7.874637126922607,
+      7.8719940185546875,
+      7.871063232421875,
+      7.869389057159424,
+      7.869705677032471,
+      7.871401309967041,
+      7.868165016174316,
+      7.869503021240234,
+      7.8723649978637695,
+      7.868929862976074,
+      7.870389938354492,
+      7.869659900665283,
+      7.86953067779541,
+      7.868916988372803,
+      7.870901107788086,
+      7.8675079345703125,
+      7.868497848510742,
+      7.869826316833496,
+      7.867186546325684,
+      7.868658542633057,
+      7.867267608642578,
+      7.86574125289917,
+      7.864335536956787,
+      7.867186546325684,
+      7.864354610443115,
+      7.862255573272705,
+      7.865378379821777,
+      7.867598533630371,
+      7.86287260055542,
+      7.863248348236084,
+      7.864688396453857,
+      7.862788200378418,
+      7.859435081481934,
+      7.862404823303223,
+      7.859435081481934,
+      7.86219596862793,
+      7.857743263244629,
+      7.857599258422852,
+      7.859925746917725,
+      7.856562614440918,
+      7.856728553771973,
+      7.856543064117432,
+      7.853546619415283,
+      7.853408336639404,
+      7.849380016326904,
+      7.852206230163574,
+      7.851731300354004,
+      7.849033832550049,
+      7.847517967224121,
+      7.849700927734375,
+      7.848424434661865,
+      7.850269794464111,
+      7.8470072746276855,
+      7.848104953765869,
+      7.847395896911621,
+      7.846903324127197,
+      7.848418235778809,
+      7.842897891998291
+    ],
+    "upstream": {
+      "commit": "b3b5ac3fcbaabbb50e8bd69a075b46cd82a50378",
+      "repository": "https://github.com/CRIPAC-DIG/GRACE.git"
+    }
+  },
+  "encoder_runs_completed": 1,
+  "encoder_runs_requested": 1,
+  "epochs": 200,
+  "gca_parameter_source": "https://github.com/CRIPAC-DIG/GCA/tree/main/param",
+  "protocol": "official_grace_single_encoder_repeated_stratified_1_1_8_linear_evaluation",
+  "runs": [
+    {
+      "classifier_run": 1,
+      "classifier_seed": 58108,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 2,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48108,
+      "split_sha256": "42a7087f9921eb25f5d5c1278e2502ae324a718b0e64a913aec0806a71f34640",
+      "test": {
+        "accuracy": 0.7196542653137918,
+        "macro_f1": 0.6290379360217323,
+        "micro_f1": 0.7196542653137918
+      },
+      "test_sha256": "7edc686ef082cbd50cdca85c8eba455fa893767f189c506fa7de627cd8e65fb0",
+      "train_sha256": "539ed611b3f4aadeaaf0629ad4abbfb4e14965fc05314b7226196523ae578864",
+      "validation_sha256": "fa6bf54c70271a38d013341953a21efbe9b52e41a2b5abd237d91bfbf553afa4"
+    },
+    {
+      "classifier_run": 2,
+      "classifier_seed": 58109,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 5,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48109,
+      "split_sha256": "d14ecb779497a3bc259fff67f9b631d7ae7a5ee8184c72d00515adab2226d596",
+      "test": {
+        "accuracy": 0.7294250281848929,
+        "macro_f1": 0.6411198542726951,
+        "micro_f1": 0.7294250281848929
+      },
+      "test_sha256": "f47b3c1490ee13fef6f6baa0370c0ffb682ac6035a3da94a9832e7e4e8314ff5",
+      "train_sha256": "5a401dbf530dac2ccc6bf238bb06bd8cdb7f0898f6b10c9696b04eaba29d0c4c",
+      "validation_sha256": "3c74df9bde04a920c8eed6a2891dc1f3fb056937b4c845b541360bd71e4cb3bd"
+    },
+    {
+      "classifier_run": 3,
+      "classifier_seed": 58110,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 6,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48110,
+      "split_sha256": "f6d0bcc28f301ea45011b4c01a9a50bda444236c2ed5a0e7da5d1ae9f3eb7299",
+      "test": {
+        "accuracy": 0.7207816610296881,
+        "macro_f1": 0.6388896382169224,
+        "micro_f1": 0.7207816610296881
+      },
+      "test_sha256": "9a29c8fc9d95825bb55b387c5da8ce866bfc99f1e70c88061a6d788e2d8c14e9",
+      "train_sha256": "3c37a855451908d791964982dd1441cf5ee6a4db0d8a5ebaed6b89dc02524d49",
+      "validation_sha256": "2a605c8f0ec49f9c09a2560a84b6d32b6629c7bc249b32458a1048829e7f178c"
+    },
+    {
+      "classifier_run": 4,
+      "classifier_seed": 58111,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 2,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48111,
+      "split_sha256": "9bc291b4fdbd91dfe6453722bc5f597422a062d206a0365ff09e6cd966241283",
+      "test": {
+        "accuracy": 0.7189026681698609,
+        "macro_f1": 0.635127665794822,
+        "micro_f1": 0.7189026681698609
+      },
+      "test_sha256": "769ff1393ffefe5e0bd03a28bfcdf882a6d3d95c38372e74cfa0b69d6314e1b6",
+      "train_sha256": "3b2adf495a070102de3a2f7cc131733d9efa6011df683c2bbb627e0d1b1da0e0",
+      "validation_sha256": "53901a0e02a103b278a8d598d20429ceb43c2fd3f247599a49afcc89c962ed02"
+    },
+    {
+      "classifier_run": 5,
+      "classifier_seed": 58112,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 6,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48112,
+      "split_sha256": "47004878faabcb9536acedaa095848291142c3cf9add5b84ec50582b789fd35f",
+      "test": {
+        "accuracy": 0.7271702367531003,
+        "macro_f1": 0.658391140159671,
+        "micro_f1": 0.7271702367531003
+      },
+      "test_sha256": "a13c54bf1073ea02e76d0e613b7cca62bfc762324c7cfbd59fa1b3725a48f6db",
+      "train_sha256": "b02cfcf5713166db200b46bbaf300d4dd4c378bc1a0bac0162065ad2732e7bd8",
+      "validation_sha256": "d42c3527f5f075db1864aeac4943b072533f8f3f69abd1c5804c817a8cf36fb8"
+    },
+    {
+      "classifier_run": 6,
+      "classifier_seed": 58113,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 5,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48113,
+      "split_sha256": "3cdaf27d9c2bebe94c9459fc8573214167040c5fddc83663555b798768cedc1a",
+      "test": {
+        "accuracy": 0.7215332581736189,
+        "macro_f1": 0.6288790795812412,
+        "micro_f1": 0.7215332581736189
+      },
+      "test_sha256": "1c7fa90793a59552d2dfa9a6ed1b01b6dcc334f9e91f217c69737aaf6f332615",
+      "train_sha256": "12b3ae5070098e4a0c2551e66769ffb498339ab1227d50880e227c37b6491cf9",
+      "validation_sha256": "884a30221b8910c292c864da1d84a741b549d00073e8a4beec8e93c1792fc73f"
+    },
+    {
+      "classifier_run": 7,
+      "classifier_seed": 58114,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 8,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48114,
+      "split_sha256": "99388dcd1ed18c0f57e7a360ff4556a96e60712dff8d66f955871264a5a3c1f1",
+      "test": {
+        "accuracy": 0.7219090567455844,
+        "macro_f1": 0.6765764340627743,
+        "micro_f1": 0.7219090567455844
+      },
+      "test_sha256": "6216f109e02c0c8aa0b6034d1dfd8123837f3a3c4e198e392f24a28e7ec11284",
+      "train_sha256": "ed556f5f89b9b4152ab974a9f045be644ba8ebdae4e2ea7d682193bcc57228f8",
+      "validation_sha256": "2b5fe0003477957f7eafc7a967349a0bb5b53069e9966c48b777a30d4f85579f"
+    },
+    {
+      "classifier_run": 8,
+      "classifier_seed": 58115,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 6,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48115,
+      "split_sha256": "9ae71e4f649c833649be1580df26623360738f93b1004900d35a263d1ff195e5",
+      "test": {
+        "accuracy": 0.7098835024426907,
+        "macro_f1": 0.6404707598626714,
+        "micro_f1": 0.7098835024426907
+      },
+      "test_sha256": "b78a559a0dec8d35503755afc67d7e0aa767bd6254b8dbc587047e98856e9fce",
+      "train_sha256": "2f0601dbda3902521bb26da7e7fe0236262ea28bdf236db01513765fde3ec7e2",
+      "validation_sha256": "beb04c4d3fdb7cc2b91e0d2f03b1b48b953f2f125c3d5ef5ca36e2fe12f7af9b"
+    },
+    {
+      "classifier_run": 9,
+      "classifier_seed": 58116,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 1,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48116,
+      "split_sha256": "8034204ce0a2e0fe507ceac61f46b667fdf92eb660d02c09c39931a58840f46b",
+      "test": {
+        "accuracy": 0.6978579481397971,
+        "macro_f1": 0.6121477554474882,
+        "micro_f1": 0.6978579481397971
+      },
+      "test_sha256": "5e18d9037af70e42b3843f4dcf1349295b61e27057733459962f2731d90fb1f9",
+      "train_sha256": "e5d191b5857c18210d3336d10f0525f93b79085f7f773778134d93ba50fc3a78",
+      "validation_sha256": "e27e76c52f0348581fe3b51cd7d1d70433a669a3b96aea8127d1d7a8cb6a24af"
+    },
+    {
+      "classifier_run": 10,
+      "classifier_seed": 58117,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 1,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48117,
+      "split_sha256": "807e823361f3ca8096f9bc98a29cc92c204645679efb68b4c3a2af2ca4ad65cc",
+      "test": {
+        "accuracy": 0.7170236753100339,
+        "macro_f1": 0.6216638689929447,
+        "micro_f1": 0.7170236753100339
+      },
+      "test_sha256": "a41990ffe0421aa0c91431dc430e8a59d6064ed306faa1f35b869ce6c3d3014b",
+      "train_sha256": "eadfa819eecc0f4b5823a47e1b7f43e70d21519715cc7b43229807381ea553fa",
+      "validation_sha256": "a9574e9a7375e4c7e5cfd3196b74c72a7f2867981f4be9ceedee0e5bddacdc91"
+    },
+    {
+      "classifier_run": 11,
+      "classifier_seed": 58118,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 1,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48118,
+      "split_sha256": "d11f339390c74a153fbd1341b215d3155ecadd75be0f0becfdca00c0042da367",
+      "test": {
+        "accuracy": 0.7173994738819992,
+        "macro_f1": 0.630938900482956,
+        "micro_f1": 0.7173994738819992
+      },
+      "test_sha256": "e43893c1dbe482d229412e48cd9d15d800da858502325bc2aa6ccf739b54b7aa",
+      "train_sha256": "39d517e36841f0803399d846ad8636dfb0b94aa7fb311f196e67ea4a29700831",
+      "validation_sha256": "8cf717d2ae4de23fa12955158b71d5c7100dda99517ceb0f24630dd44e57f227"
+    },
+    {
+      "classifier_run": 12,
+      "classifier_seed": 58119,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 3,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48119,
+      "split_sha256": "736f27222d495cfefa2588dd8993abbf116d31e1f18fead679ec393139a916be",
+      "test": {
+        "accuracy": 0.713641488162345,
+        "macro_f1": 0.6292262828430064,
+        "micro_f1": 0.713641488162345
+      },
+      "test_sha256": "740d0bda04c45e26862167092848eb877a98921d3ffb961668b49b4156da46e3",
+      "train_sha256": "d44b5963ade413abe72ce7fdd4b12ed53b6ddd919e92b00a2483a03a30fea8d3",
+      "validation_sha256": "8ac11fd903579ff0b60065ac6d7f0c6250538fa3184be9561e70f410e250e1c8"
+    },
+    {
+      "classifier_run": 13,
+      "classifier_seed": 58120,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 6,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48120,
+      "split_sha256": "717c361be2da5ae2342d26eb178e441ceef1b5174c2f279f55475381a5985359",
+      "test": {
+        "accuracy": 0.7267944381811349,
+        "macro_f1": 0.6721993657528439,
+        "micro_f1": 0.7267944381811349
+      },
+      "test_sha256": "6cb9efb1100c4d927697bbf07a4a582c972788de875931a26bb602cafa33a58b",
+      "train_sha256": "8ec15a6b5638516757b26d0f0e8c0588f2090edea6e4a78c3b04ff727c275244",
+      "validation_sha256": "462f475f051d8163f0814c5b429004422d7cfa7049a781aa67be7eea6a4a8784"
+    },
+    {
+      "classifier_run": 14,
+      "classifier_seed": 58121,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 1,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48121,
+      "split_sha256": "837eb20e62020f12d50415399467167f892bb102aeabd3a39aea5360f60fc90f",
+      "test": {
+        "accuracy": 0.7076287110108982,
+        "macro_f1": 0.61400917673581,
+        "micro_f1": 0.7076287110108982
+      },
+      "test_sha256": "d6853cfe0ff597056ecc78340ae451c0d03718d7b1323a3a4cb216734abdfa56",
+      "train_sha256": "8b9a2d24014c0f3976358daf349b3a877daed8ffee97051dfecc5566423bb853",
+      "validation_sha256": "e49a8b47089f3180d09d45253617544d0664a3a925775afb92552974b29c3f57"
+    },
+    {
+      "classifier_run": 15,
+      "classifier_seed": 58122,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 6,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48122,
+      "split_sha256": "ebed682b0f2bc154b0cc2d0cd7ceed9018704997b083d763c46b402405dad7e7",
+      "test": {
+        "accuracy": 0.7260428410372041,
+        "macro_f1": 0.650009942529203,
+        "micro_f1": 0.7260428410372041
+      },
+      "test_sha256": "ec0c3949e4ec44cee8f275ec261739f94e799de201465b9f4d6cc97e7f206790",
+      "train_sha256": "79135d10b286d2b930656fcc62fb26856e710b88c2c284121ab0a272027025a5",
+      "validation_sha256": "29ee222d9a6dab0427d2aefdc3ce6185aa833f36eebb80c65f018e3f7d642b1a"
+    },
+    {
+      "classifier_run": 16,
+      "classifier_seed": 58123,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 0,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48123,
+      "split_sha256": "07ed6521e03163a38fcf0b0066beeffc1749e23996e5effecc33d1b01b8483dc",
+      "test": {
+        "accuracy": 0.7125140924464487,
+        "macro_f1": 0.6183571150961519,
+        "micro_f1": 0.7125140924464487
+      },
+      "test_sha256": "472fc62c585d6122b16bfe7e793f56e94ea3ddf18a452eb7744e4f939456d825",
+      "train_sha256": "b793e2721c10e896a00db28866a0f2073031a04269c1720cb27d9294b82b5857",
+      "validation_sha256": "5723de40352f8086e55a8064f350c064ae47853cc94e918511ca3ee44a04adfb"
+    },
+    {
+      "classifier_run": 17,
+      "classifier_seed": 58124,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 9,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48124,
+      "split_sha256": "1212287679b60eddf06d3026fe30f07383357fcff3593356d4793a23a51fd58f",
+      "test": {
+        "accuracy": 0.7087561067267945,
+        "macro_f1": 0.6603134550246329,
+        "micro_f1": 0.7087561067267945
+      },
+      "test_sha256": "494d5c439127d35166340b3b72dcb7d3e03e9aba7ec2cc428da2ec43ef462f3e",
+      "train_sha256": "2fe391da85d32aa3c71e751a34e299b0b7327e92d29661042f002eb3b8c9f997",
+      "validation_sha256": "ed7bbf47ba3c7b0b139af286c93e672ee0cf1564b87e789f0b0479b9370305cd"
+    },
+    {
+      "classifier_run": 18,
+      "classifier_seed": 58125,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 3,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48125,
+      "split_sha256": "5d00395c149b04caa0f0b1fdf0df0bffc096580b8ffef0d64478b70da7a61628",
+      "test": {
+        "accuracy": 0.7211574596016536,
+        "macro_f1": 0.6311565743634554,
+        "micro_f1": 0.7211574596016536
+      },
+      "test_sha256": "c29675629f217a06448b2ee5e14018f8ba7ca264a279787f48e30035e67e538a",
+      "train_sha256": "d523c515b99353daea4334cc469b8a42c79879d2e87f59febe3251f5cb3f8515",
+      "validation_sha256": "a1a6871997d7a13c4f77453091dd8594c379399eb66238bcd8a1f3441130ced8"
+    },
+    {
+      "classifier_run": 19,
+      "classifier_seed": 58126,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 3,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48126,
+      "split_sha256": "a75f31709d75c813f52b8c3f9ef34cd9d0a48f9b90b375fa586ce9c16d95faca",
+      "test": {
+        "accuracy": 0.7087561067267945,
+        "macro_f1": 0.6305512477719177,
+        "micro_f1": 0.7087561067267945
+      },
+      "test_sha256": "58a059a29c98ccdf51095f7d7de0d22a3d345991b402aeb3a4daca14d71db8d9",
+      "train_sha256": "ed70a4df14ddc166e130b618d799aace8ecef7b59165c0abc8f663dac2136271",
+      "validation_sha256": "32854e81fb27187bccf98ebba92059b0ee014fa6df1d9a9d646369f4f61a9207"
+    },
+    {
+      "classifier_run": 20,
+      "classifier_seed": 58127,
+      "encoder_run": 1,
+      "encoder_seed": 38108,
+      "selected_C_exponent": 7,
+      "sizes": {
+        "test": 2661,
+        "total": 3327,
+        "train": 333,
+        "validation": 333
+      },
+      "split_seed": 48127,
+      "split_sha256": "7520610b64756fd219731ec8f8e7b83a1b9ecd46b0035ea1b741756b7bd94c77",
+      "test": {
+        "accuracy": 0.7298008267568583,
+        "macro_f1": 0.6650800043964303,
+        "micro_f1": 0.7298008267568583
+      },
+      "test_sha256": "307fa3ddd3d5e8218ea2e5591be27ab87318e3112d022c0641a2bef0417f326b",
+      "train_sha256": "b3d276a6fe96df291d6b53150b338bd7e42ebffbbdefd803c12f32aa8e990a3d",
+      "validation_sha256": "e9e3a729ab4a02af3469a3e215a55d5523ab970ca7dfbd33e6f13610b90153e3"
+    }
+  ],
+  "summary": {
+    "runs": 20,
+    "test": {
+      "accuracy": {
+        "mean": 0.7178316422397594,
+        "mean_percent": 71.78316422397593,
+        "std": 0.00820005487038287,
+        "std_percent": 0.820005487038287
+      },
+      "macro_f1": {
+        "mean": 0.6392073098704685,
+        "mean_percent": 63.920730987046845,
+        "std": 0.01834937837021273,
+        "std_percent": 1.8349378370212732
+      },
+      "micro_f1": {
+        "mean": 0.7178316422397594,
+        "mean_percent": 71.78316422397593,
+        "std": 0.00820005487038287,
+        "std_percent": 0.820005487038287
+      }
+    },
+    "validation": {
+      "accuracy": {
+        "mean": 0.7304804804804805,
+        "mean_percent": 73.04804804804806,
+        "std": 0.021527049596142187,
+        "std_percent": 2.1527049596142187
+      },
+      "macro_f1": {
+        "mean": 0.6517247402141527,
+        "mean_percent": 65.17247402141527,
+        "std": 0.032663149434488684,
+        "std_percent": 3.2663149434488683
+      },
+      "micro_f1": {
+        "mean": 0.7304804804804805,
+        "mean_percent": 73.04804804804806,
+        "std": 0.021527049596142187,
+        "std_percent": 2.1527049596142187
+      }
+    }
+  },
+  "test_accessed": true,
+  "upstream": {
+    "commit": "b3b5ac3fcbaabbb50e8bd69a075b46cd82a50378",
+    "repository": "https://github.com/CRIPAC-DIG/GRACE.git"
+  }
+}

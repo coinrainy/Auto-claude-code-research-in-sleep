@@ -29,6 +29,8 @@ GCA runner 默认 seed `39788`；`Coauthor Physics` 使用 `batch_size=1024`
 Amazon Computers 和 Amazon Photo 的 1:1:8、10 次独立 encoder 复现及论文对照见
 [amazon_grace_comparison.md](amazon_grace_comparison.md)；单 encoder、20 次线性分类器的结果见
 [amazon_grace_single_encoder_comparison.md](amazon_grace_single_encoder_comparison.md)。
+其余五个目标数据集的同协议结果见
+[grace_single_encoder_remaining_comparison.md](grace_single_encoder_remaining_comparison.md)。
 
 | 数据集 | test accuracy | test micro-F1 | test macro-F1 |
 |---|---:|---:|---:|

@@ -1,0 +1,165 @@
+{
+  "classifier_run": 7,
+  "classifier_seed": 43350,
+  "dataset": "PubMed",
+  "encoder_run": 1,
+  "encoder_seed": 23344,
+  "evaluation": {
+    "classifier_seed": 43350,
+    "protocol": "fit_train_select_C_on_validation_then_evaluate_selected_classifier_on_80_percent_test",
+    "selected_C": 8.0,
+    "selected_C_exponent": 3,
+    "sizes": {
+      "test": 15773,
+      "total": 19717,
+      "train": 1972,
+      "validation": 1972
+    },
+    "split": "stratified_1_1_8",
+    "split_seed": 33350,
+    "split_sha256": "2cae1ccd7ac8e732a3554b21c7eb1b8bf9ee5c0dd5f18b74075933688518f415",
+    "test": {
+      "accuracy": 0.8596335510048818,
+      "macro_f1": 0.8573071048260951,
+      "micro_f1": 0.8596335510048818
+    },
+    "test_accessed": true,
+    "test_labels_used_by_classifier_only": true,
+    "test_sha256": "c208d29b6da198f5991e075ddbf83fbddfc6f00437a9ac5b4d51a899bf01202a",
+    "train_sha256": "51766550390c81d3445ba93f396f432b72ed94246c2d64866505bac231160126",
+    "validation": {
+      "C_exponent": 3,
+      "accuracy": 0.8585192697768763,
+      "macro_f1": 0.8575649651490326,
+      "micro_f1": 0.8585192697768763
+    },
+    "validation_candidates": [
+      {
+        "C_exponent": -10,
+        "accuracy": 0.6881338742393509,
+        "macro_f1": 0.5119630219890029,
+        "micro_f1": 0.6881338742393509
+      },
+      {
+        "C_exponent": -9,
+        "accuracy": 0.6901622718052738,
+        "macro_f1": 0.5135349808473295,
+        "micro_f1": 0.6901622718052738
+      },
+      {
+        "C_exponent": -8,
+        "accuracy": 0.712474645030426,
+        "macro_f1": 0.5823646131079455,
+        "micro_f1": 0.712474645030426
+      },
+      {
+        "C_exponent": -7,
+        "accuracy": 0.787525354969574,
+        "macro_f1": 0.7535504322011911,
+        "micro_f1": 0.787525354969574
+      },
+      {
+        "C_exponent": -6,
+        "accuracy": 0.8245436105476673,
+        "macro_f1": 0.8134522407104914,
+        "micro_f1": 0.8245436105476673
+      },
+      {
+        "C_exponent": -5,
+        "accuracy": 0.8433062880324543,
+        "macro_f1": 0.8379990311583893,
+        "micro_f1": 0.8433062880324543
+      },
+      {
+        "C_exponent": -4,
+        "accuracy": 0.8488843813387424,
+        "macro_f1": 0.8453568764163197,
+        "micro_f1": 0.8488843813387424
+      },
+      {
+        "C_exponent": -3,
+        "accuracy": 0.8509127789046653,
+        "macro_f1": 0.8486224184476351,
+        "micro_f1": 0.8509127789046653
+      },
+      {
+        "C_exponent": -2,
+        "accuracy": 0.8498985801217038,
+        "macro_f1": 0.8480064546054393,
+        "micro_f1": 0.8498985801217038
+      },
+      {
+        "C_exponent": -1,
+        "accuracy": 0.8509127789046653,
+        "macro_f1": 0.8498314448768812,
+        "micro_f1": 0.8509127789046653
+      },
+      {
+        "C_exponent": 0,
+        "accuracy": 0.8514198782961461,
+        "macro_f1": 0.8506803524510201,
+        "micro_f1": 0.8514198782961461
+      },
+      {
+        "C_exponent": 1,
+        "accuracy": 0.8509127789046653,
+        "macro_f1": 0.849662526808848,
+        "micro_f1": 0.8509127789046653
+      },
+      {
+        "C_exponent": 2,
+        "accuracy": 0.8524340770791075,
+        "macro_f1": 0.8513946961746687,
+        "micro_f1": 0.8524340770791075
+      },
+      {
+        "C_exponent": 3,
+        "accuracy": 0.8585192697768763,
+        "macro_f1": 0.8575649651490326,
+        "micro_f1": 0.8585192697768763
+      },
+      {
+        "C_exponent": 4,
+        "accuracy": 0.8580121703853956,
+        "macro_f1": 0.8563464615517149,
+        "micro_f1": 0.8580121703853956
+      },
+      {
+        "C_exponent": 5,
+        "accuracy": 0.8549695740365112,
+        "macro_f1": 0.8533841922487401,
+        "micro_f1": 0.8549695740365112
+      },
+      {
+        "C_exponent": 6,
+        "accuracy": 0.8539553752535497,
+        "macro_f1": 0.8530568004316611,
+        "micro_f1": 0.8539553752535497
+      },
+      {
+        "C_exponent": 7,
+        "accuracy": 0.8564908722109533,
+        "macro_f1": 0.8560405892363198,
+        "micro_f1": 0.8564908722109533
+      },
+      {
+        "C_exponent": 8,
+        "accuracy": 0.8468559837728195,
+        "macro_f1": 0.8467654509959958,
+        "micro_f1": 0.8468559837728195
+      },
+      {
+        "C_exponent": 9,
+        "accuracy": 0.842292089249493,
+        "macro_f1": 0.8415669546490743,
+        "micro_f1": 0.842292089249493
+      }
+    ],
+    "validation_sha256": "057a0b9776c05adb108353b9827fa98cc683b346ec6d644ce93c357368cb20b9"
+  },
+  "split_seed": 33350,
+  "upstream": {
+    "commit": "b3b5ac3fcbaabbb50e8bd69a075b46cd82a50378",
+    "repository": "https://github.com/CRIPAC-DIG/GRACE.git"
+  }
+}
