@@ -1,0 +1,304 @@
+{
+  "config": {
+    "activation": "relu",
+    "base_model": "GCNConv",
+    "drop_edge_rate_1": 0.2,
+    "drop_edge_rate_2": 0.4,
+    "drop_feature_rate_1": 0.3,
+    "drop_feature_rate_2": 0.4,
+    "learning_rate": 0.0005,
+    "num_epochs": 200,
+    "num_hidden": 128,
+    "num_layers": 2,
+    "num_proj_hidden": 128,
+    "seed": 39788,
+    "tau": 0.4,
+    "weight_decay": 1e-05
+  },
+  "data_root": "/root/autodl-tmp/G-02-baseline-data/pyg",
+  "dataset": "Cora",
+  "epochs": 200,
+  "protocol": "official_grace_encoder_with_stratified_1_1_8_linear_evaluation",
+  "runs": [
+    {
+      "classifier_seed": 59788,
+      "final_loss": 6.821344375610352,
+      "run": 1,
+      "selected_C_exponent": 7,
+      "sizes": {
+        "test": 2164,
+        "total": 2708,
+        "train": 272,
+        "validation": 272
+      },
+      "split_seed": 49788,
+      "split_sha256": "bff84180c8c7dc4852fd4a911b9f610ecb01f02770af1a206f7c4faa6c756975",
+      "test": {
+        "accuracy": 0.8271719038817006,
+        "macro_f1": 0.8097773755999171,
+        "micro_f1": 0.8271719038817006
+      },
+      "test_sha256": "3e935a24c2ab143ab809c2f0e73d86d79bc5eb199c7910aa7d5deff9e9a58d2d",
+      "train_seed": 39788,
+      "train_sha256": "db3c00c1407579e1d3330dbbb34a4217608cffd47d611d7f6149ee90d947b1b7",
+      "validation_sha256": "eef1093de96045bf3f6d53db09ed333d0f8f5715354fa575fd9bed1d9399309c"
+    },
+    {
+      "classifier_seed": 59789,
+      "final_loss": 6.915113925933838,
+      "run": 2,
+      "selected_C_exponent": 6,
+      "sizes": {
+        "test": 2164,
+        "total": 2708,
+        "train": 272,
+        "validation": 272
+      },
+      "split_seed": 49789,
+      "split_sha256": "01f5be3b74b6ce8675e87f129f4fa1df28b83947e8b184c0f2a045bbfe4ed8cb",
+      "test": {
+        "accuracy": 0.8248613678373382,
+        "macro_f1": 0.8101341387874512,
+        "micro_f1": 0.8248613678373382
+      },
+      "test_sha256": "7d2e91371494c970092ed5552e15e535089821eeb7ef3facc42aaafaa11f3ec7",
+      "train_seed": 39789,
+      "train_sha256": "3b48e384999801a9f7d1eeac35f9a45e7b7ea7f576049654d70411dc2cd44485",
+      "validation_sha256": "048348f162378e8a8a0ea390d258947da91efb702e39776d2d4a4685567edfcb"
+    },
+    {
+      "classifier_seed": 59790,
+      "final_loss": 6.794471740722656,
+      "run": 3,
+      "selected_C_exponent": 3,
+      "sizes": {
+        "test": 2164,
+        "total": 2708,
+        "train": 272,
+        "validation": 272
+      },
+      "split_seed": 49790,
+      "split_sha256": "afc364b64ea95c91c31b065d90c1ae8fd9587279620492bd22dcf9005ef491bc",
+      "test": {
+        "accuracy": 0.8193160813308688,
+        "macro_f1": 0.8003054607742414,
+        "micro_f1": 0.8193160813308688
+      },
+      "test_sha256": "c5b4f27dac395c479b43de17b94f11a2ffde9182996a97811852309e215580c2",
+      "train_seed": 39790,
+      "train_sha256": "f5f23faade8f704aa55b78ac24d44eaf4b99043cad1b6dc97b6be502474ee130",
+      "validation_sha256": "69e7b7a72953f9e376d4789151f5177f2f8a9e8513a983e830d9af8458b10457"
+    },
+    {
+      "classifier_seed": 59791,
+      "final_loss": 6.835236549377441,
+      "run": 4,
+      "selected_C_exponent": 5,
+      "sizes": {
+        "test": 2164,
+        "total": 2708,
+        "train": 272,
+        "validation": 272
+      },
+      "split_seed": 49791,
+      "split_sha256": "e1731010142a6b9ae81617b2386efc5533f5ca3dae4777181ccf67e58090938b",
+      "test": {
+        "accuracy": 0.8183918669131238,
+        "macro_f1": 0.8038659527891797,
+        "micro_f1": 0.8183918669131238
+      },
+      "test_sha256": "0988dabd5788d92557bfe6a1274b2ac2ff78d4a6ff288955739362b8e32986a5",
+      "train_seed": 39791,
+      "train_sha256": "e6fb5e4fd0f20e2c86e5b3e8db2f9d845a23a7456cc15c7e9d6b162d734d6f89",
+      "validation_sha256": "38a53d01256927d54c09b52b57a041fbe3e05356ace26c68eb24260dc7e0beff"
+    },
+    {
+      "classifier_seed": 59792,
+      "final_loss": 6.805761337280273,
+      "run": 5,
+      "selected_C_exponent": 6,
+      "sizes": {
+        "test": 2164,
+        "total": 2708,
+        "train": 272,
+        "validation": 272
+      },
+      "split_seed": 49792,
+      "split_sha256": "e1f32a74a3deb441ce5c3028ea4a38a2cf40e1e1fa758a3e659ed6c5e88fb7e7",
+      "test": {
+        "accuracy": 0.8299445471349353,
+        "macro_f1": 0.816180109559146,
+        "micro_f1": 0.8299445471349353
+      },
+      "test_sha256": "a7ee220970d216a42f4d3fb976886b1d2d3fb95ea0330a4e8cefcbbebb547f46",
+      "train_seed": 39792,
+      "train_sha256": "16fc837564c428f359de882dd158fd7dc99444438bf2ff1a55c0988446896bd0",
+      "validation_sha256": "ed3a986d26ed56c4a702e584230005bde79804efecf698a23e010b9d8fbbacac"
+    },
+    {
+      "classifier_seed": 59793,
+      "final_loss": 6.820489883422852,
+      "run": 6,
+      "selected_C_exponent": 8,
+      "sizes": {
+        "test": 2164,
+        "total": 2708,
+        "train": 272,
+        "validation": 272
+      },
+      "split_seed": 49793,
+      "split_sha256": "a2c48d2eeda2ccbd3f8433351a7d2174b63bd4019a7479a17ea60cc7d3aafa79",
+      "test": {
+        "accuracy": 0.8193160813308688,
+        "macro_f1": 0.8044140903968903,
+        "micro_f1": 0.8193160813308688
+      },
+      "test_sha256": "ce6e3b25ad0061792987cc7217b355b4c8b511b036117139f48b79880e64343d",
+      "train_seed": 39793,
+      "train_sha256": "6b02be3b5d718b2f08f6a90e09a0ce3ef6fab7676f0d1a91f7d24c456757b920",
+      "validation_sha256": "9e9b0f5da15403833998f2ebe6e873a94c99707f53c68e9f3f0bab58d4144a70"
+    },
+    {
+      "classifier_seed": 59794,
+      "final_loss": 6.777138710021973,
+      "run": 7,
+      "selected_C_exponent": 9,
+      "sizes": {
+        "test": 2164,
+        "total": 2708,
+        "train": 272,
+        "validation": 272
+      },
+      "split_seed": 49794,
+      "split_sha256": "26168428630e2680990ff4224b2a6186a2c08be7c16e765f9ffe504ac7af429d",
+      "test": {
+        "accuracy": 0.8331792975970426,
+        "macro_f1": 0.8131900292426985,
+        "micro_f1": 0.8331792975970426
+      },
+      "test_sha256": "905122e31bfffee18ac74d76e156d879019d6882d5565bce0c3a31d2bec55d4d",
+      "train_seed": 39794,
+      "train_sha256": "2d9f8bbe154e0f2508253a7660de1662729c7347e7568335ab93614bfa2c7df0",
+      "validation_sha256": "9c096b11d8cde41d628c580021f0fbbd504be12684c7f23b9ecf9edf08caf91a"
+    },
+    {
+      "classifier_seed": 59795,
+      "final_loss": 6.827627182006836,
+      "run": 8,
+      "selected_C_exponent": 6,
+      "sizes": {
+        "test": 2164,
+        "total": 2708,
+        "train": 272,
+        "validation": 272
+      },
+      "split_seed": 49795,
+      "split_sha256": "61485e7340065e960d4f577100598a4b50277fbee91235be13e0286e9e3ad24e",
+      "test": {
+        "accuracy": 0.8262476894639557,
+        "macro_f1": 0.8154696858172032,
+        "micro_f1": 0.8262476894639557
+      },
+      "test_sha256": "e8d7792a33e604e6ea188afb584369566de08ac4654f7880e5aa78e5cdf20e48",
+      "train_seed": 39795,
+      "train_sha256": "8f5f3faa99dbd0757db32b66b109cf55c3c5a1daba2c5bd690b113e26d037469",
+      "validation_sha256": "ac0ebe13560c36a834661f29279cd78be4cff763a55f40a8efa20996c86683a1"
+    },
+    {
+      "classifier_seed": 59796,
+      "final_loss": 6.867138385772705,
+      "run": 9,
+      "selected_C_exponent": 9,
+      "sizes": {
+        "test": 2164,
+        "total": 2708,
+        "train": 272,
+        "validation": 272
+      },
+      "split_seed": 49796,
+      "split_sha256": "cccb64dec3d558a8630171c7a69e193b40d28e69c7bc7548e5e48525521cf05a",
+      "test": {
+        "accuracy": 0.8359519408502772,
+        "macro_f1": 0.8223935521160183,
+        "micro_f1": 0.8359519408502772
+      },
+      "test_sha256": "7cd02bf8f5399a56f40e98e8f52d351f54fea66ced3e02b0c77ebb66adee727b",
+      "train_seed": 39796,
+      "train_sha256": "0f12a528cfac72325422eea804826109a7cfefcb0ceccb84bf11a36c5f41cf8e",
+      "validation_sha256": "b7971d4c529cd0b89eb6df79e7a2909f10025d383b2459e8f1651a39bf2720dd"
+    },
+    {
+      "classifier_seed": 59797,
+      "final_loss": 6.814350605010986,
+      "run": 10,
+      "selected_C_exponent": 6,
+      "sizes": {
+        "test": 2164,
+        "total": 2708,
+        "train": 272,
+        "validation": 272
+      },
+      "split_seed": 49797,
+      "split_sha256": "e5e129439265efaa312762d0670b9863c6f7a7a0a1b57658456ac9617e00aeab",
+      "test": {
+        "accuracy": 0.8479667282809612,
+        "macro_f1": 0.8345288377070126,
+        "micro_f1": 0.8479667282809612
+      },
+      "test_sha256": "7c06aa7362240834c6f12ea42f0d1842fe10b3f340054b6b0e09c4189f4fd0fc",
+      "train_seed": 39797,
+      "train_sha256": "6e13ab3bc58229a25eeacc2871d48e9c262fb6cd05d7a752e34b3a5a049290ed",
+      "validation_sha256": "7f0c3c9b812697e92ba6af79fbbb0a9bfa8c84b6b3142b1629ba43f62a3dc4b0"
+    }
+  ],
+  "runs_completed": 10,
+  "runs_requested": 10,
+  "summary": {
+    "runs": 10,
+    "test": {
+      "accuracy": {
+        "mean": 0.8282347504621071,
+        "mean_percent": 82.82347504621072,
+        "std": 0.00865276468224943,
+        "std_percent": 0.8652764682249431
+      },
+      "macro_f1": {
+        "mean": 0.8130259232789758,
+        "mean_percent": 81.30259232789759,
+        "std": 0.009512465332364939,
+        "std_percent": 0.9512465332364939
+      },
+      "micro_f1": {
+        "mean": 0.8282347504621071,
+        "mean_percent": 82.82347504621072,
+        "std": 0.00865276468224943,
+        "std_percent": 0.8652764682249431
+      }
+    },
+    "validation": {
+      "accuracy": {
+        "mean": 0.845220588235294,
+        "mean_percent": 84.5220588235294,
+        "std": 0.02049941449919213,
+        "std_percent": 2.049941449919213
+      },
+      "macro_f1": {
+        "mean": 0.8347664726820667,
+        "mean_percent": 83.47664726820668,
+        "std": 0.020222168361380122,
+        "std_percent": 2.0222168361380124
+      },
+      "micro_f1": {
+        "mean": 0.845220588235294,
+        "mean_percent": 84.5220588235294,
+        "std": 0.02049941449919213,
+        "std_percent": 2.049941449919213
+      }
+    }
+  },
+  "test_accessed": true,
+  "upstream": {
+    "commit": "b3b5ac3fcbaabbb50e8bd69a075b46cd82a50378",
+    "repository": "https://github.com/CRIPAC-DIG/GRACE.git"
+  }
+}

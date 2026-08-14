@@ -1,0 +1,604 @@
+diff --git a/eval.py b/eval.py
+index d719230..ccec77e 100644
+--- a/eval.py
++++ b/eval.py
+@@ -1,78 +1,182 @@
+-import numpy as np
+-import functools
++"""Linear evaluation for the GRACE reproduction.
++
++The upstream script used an implicit 90/10 split and repeated the evaluator
++three times.  This version makes the requested 1:1:8 protocol explicit:
++train on 10%, select C on 10% validation, and report once on the remaining
++80% test partition.
++"""
++
++from __future__ import annotations
++
++import hashlib
++from typing import Any
+
+-from sklearn.metrics import f1_score
++import numpy as np
+ from sklearn.linear_model import LogisticRegression
+-from sklearn.model_selection import train_test_split, GridSearchCV
++from sklearn.metrics import accuracy_score, f1_score
+ from sklearn.multiclass import OneVsRestClassifier
+-from sklearn.preprocessing import normalize, OneHotEncoder
+-
+-
+-def repeat(n_times):
+-    def decorator(f):
+-        @functools.wraps(f)
+-        def wrapper(*args, **kwargs):
+-            results = [f(*args, **kwargs) for _ in range(n_times)]
+-            statistics = {}
+-            for key in results[0].keys():
+-                values = [r[key] for r in results]
+-                statistics[key] = {
+-                    'mean': np.mean(values),
+-                    'std': np.std(values)}
+-            print_statistics(statistics, f.__name__)
+-            return statistics
+-        return wrapper
+-    return decorator
+-
+-
+-def prob_to_one_hot(y_pred):
+-    ret = np.zeros(y_pred.shape, np.bool)
+-    indices = np.argmax(y_pred, axis=1)
+-    for i in range(y_pred.shape[0]):
+-        ret[i][indices[i]] = True
+-    return ret
+-
+-
+-def print_statistics(statistics, function_name):
+-    print(f'(E) | {function_name}:', end=' ')
+-    for i, key in enumerate(statistics.keys()):
+-        mean = statistics[key]['mean']
+-        std = statistics[key]['std']
+-        print(f'{key}={mean:.4f}+-{std:.4f}', end='')
+-        if i != len(statistics.keys()) - 1:
+-            print(',', end=' ')
+-        else:
+-            print()
+-
+-
+-@repeat(3)
+-def label_classification(embeddings, y, ratio):
+-    X = embeddings.detach().cpu().numpy()
+-    Y = y.detach().cpu().numpy()
+-    Y = Y.reshape(-1, 1)
+-    onehot_encoder = OneHotEncoder(categories='auto').fit(Y)
+-    Y = onehot_encoder.transform(Y).toarray().astype(np.bool)
+-
+-    X = normalize(X, norm='l2')
+-
+-    X_train, X_test, y_train, y_test = train_test_split(X, Y,
+-                                                        test_size=1 - ratio)
+-
+-    logreg = LogisticRegression(solver='liblinear')
+-    c = 2.0 ** np.arange(-10, 10)
+-
+-    clf = GridSearchCV(estimator=OneVsRestClassifier(logreg),
+-                       param_grid=dict(estimator__C=c), n_jobs=8, cv=5,
+-                       verbose=0)
+-    clf.fit(X_train, y_train)
+-
+-    y_pred = clf.predict_proba(X_test)
+-    y_pred = prob_to_one_hot(y_pred)
+-
+-    micro = f1_score(y_test, y_pred, average="micro")
+-    macro = f1_score(y_test, y_pred, average="macro")
++from sklearn.preprocessing import normalize
++
++
++C_EXPONENTS = tuple(range(-10, 10))
++
++
++def _sha256_indices(indices: np.ndarray) -> str:
++    values = np.asarray(indices, dtype=np.int64)
++    return hashlib.sha256(values.tobytes()).hexdigest()
++
++
++def stratified_indices(y: np.ndarray, seed: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
++    """Return a deterministic class-wise 1:1:8 split of all nodes."""
++
++    labels = np.asarray(y, dtype=np.int64)
++    rng = np.random.default_rng(seed)
++    train_parts: list[np.ndarray] = []
++    validation_parts: list[np.ndarray] = []
++    test_parts: list[np.ndarray] = []
++
++    for class_id in np.unique(labels):
++        indices = np.flatnonzero(labels == class_id).astype(np.int64, copy=False)
++        rng.shuffle(indices)
++        count = round(0.1 * indices.size)
++        if count < 1:
++            raise RuntimeError(f"class {class_id} is too small for a 1:1:8 split")
++        train_parts.append(indices[:count])
++        validation_parts.append(indices[count : 2 * count])
++        test_parts.append(indices[2 * count :])
++
++    train = np.concatenate(train_parts)
++    validation = np.concatenate(validation_parts)
++    test = np.concatenate(test_parts)
++    rng.shuffle(train)
++    rng.shuffle(validation)
++    rng.shuffle(test)
++    return train, validation, test
++
++
++def _classifier(c_exponent: int, seed: int) -> OneVsRestClassifier:
++    return OneVsRestClassifier(
++        LogisticRegression(
++            C=2.0**c_exponent,
++            solver="liblinear",
++            penalty="l2",
++            max_iter=2000,
++            random_state=int(seed % (2**32 - 1)),
++        ),
++        n_jobs=1,
++    )
+
++
++def _metrics(y_true: np.ndarray, prediction: np.ndarray) -> dict[str, float]:
+     return {
+-        'F1Mi': micro,
+-        'F1Ma': macro
++        "accuracy": float(accuracy_score(y_true, prediction)),
++        "micro_f1": float(f1_score(y_true, prediction, average="micro", zero_division=0)),
++        "macro_f1": float(f1_score(y_true, prediction, average="macro", zero_division=0)),
++    }
++
++
++def label_classification(embeddings, y, split_seed: int, classifier_seed: int | None = None) -> dict[str, Any]:
++    """Evaluate one embedding with validation-selected linear classification."""
++
++    if classifier_seed is None:
++        classifier_seed = split_seed
++
++    X = normalize(embeddings.detach().cpu().numpy(), norm="l2").astype(np.float64, copy=False)
++    labels = y.detach().cpu().numpy().astype(np.int64, copy=False)
++    train, validation, test = stratified_indices(labels, split_seed)
++
++    best: dict[str, Any] | None = None
++    best_estimator: OneVsRestClassifier | None = None
++    validation_rows: list[dict[str, float | int]] = []
++    for exponent in C_EXPONENTS:
++        estimator = _classifier(exponent, classifier_seed + exponent)
++        estimator.fit(X[train], labels[train])
++        prediction = estimator.predict(X[validation])
++        row: dict[str, float | int] = {
++            "C_exponent": int(exponent),
++            **_metrics(labels[validation], prediction),
++        }
++        validation_rows.append(row)
++        if best is None or (-row["accuracy"], row["C_exponent"]) < (
++            -best["accuracy"], best["C_exponent"]
++        ):
++            best = row
++            best_estimator = estimator
++
++    if best is None or best_estimator is None:
++        raise RuntimeError("validation-selected linear classifier failed")
++
++    test_prediction = best_estimator.predict(X[test])
++    test_metrics = _metrics(labels[test], test_prediction)
++    combined = np.concatenate((train, np.asarray([-1]), validation, np.asarray([-2]), test))
++    result: dict[str, Any] = {
++        "protocol": "fit_train_select_C_on_validation_then_evaluate_selected_classifier_on_80_percent_test",
++        "split": "stratified_1_1_8",
++        "split_seed": int(split_seed),
++        "classifier_seed": int(classifier_seed),
++        "sizes": {
++            "total": int(labels.size),
++            "train": int(train.size),
++            "validation": int(validation.size),
++            "test": int(test.size),
++        },
++        "split_sha256": _sha256_indices(combined),
++        "train_sha256": _sha256_indices(train),
++        "validation_sha256": _sha256_indices(validation),
++        "test_sha256": _sha256_indices(test),
++        "selected_C_exponent": int(best["C_exponent"]),
++        "selected_C": float(2.0 ** int(best["C_exponent"])),
++        "validation": best,
++        "test": test_metrics,
++        "validation_candidates": validation_rows,
++        "test_labels_used_by_classifier_only": True,
++        "test_accessed": True,
+     }
++    return result
++
++
++def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
++    """Aggregate run-level metrics without rounding away precision."""
++
++    if not results:
++        raise ValueError("cannot summarize an empty result list")
++
++    def stats(values: list[float]) -> dict[str, float]:
++        array = np.asarray(values, dtype=np.float64)
++        return {
++            "mean": float(array.mean()),
++            "std": float(array.std(ddof=0)),
++            "mean_percent": float(array.mean() * 100.0),
++            "std_percent": float(array.std(ddof=0) * 100.0),
++        }
++
++    metrics = ("accuracy", "micro_f1", "macro_f1")
++
++    def evaluation(row: dict[str, Any]) -> dict[str, Any]:
++        # `train.py` stores the evaluator payload under `evaluation`; keeping
++        # this helper tolerant of a bare evaluator row makes the aggregator
++        # useful in small standalone checks too.
++        return row.get("evaluation", row)
++
++    return {
++        "runs": len(results),
++        "test": {
++            metric: stats([float(evaluation(row)["test"][metric]) for row in results])
++            for metric in metrics
++        },
++        "validation": {
++            metric: stats([float(evaluation(row)["validation"][metric]) for row in results])
++            for metric in metrics
++        },
++    }
++
++
++def print_statistics(summary: dict[str, Any]) -> None:
++    test = summary["test"]
++    print(
++        "(E) | test: "
++        f"accuracy={test['accuracy']['mean_percent']:.4f}%+-{test['accuracy']['std_percent']:.4f}%, "
++        f"micro_f1={test['micro_f1']['mean_percent']:.4f}%+-{test['micro_f1']['std_percent']:.4f}%, "
++        f"macro_f1={test['macro_f1']['mean_percent']:.4f}%+-{test['macro_f1']['std_percent']:.4f}%",
++        flush=True,
++    )
+diff --git a/train.py b/train.py
+index b363491..3bd672a 100644
+--- a/train.py
++++ b/train.py
+@@ -1,107 +1,254 @@
++"""Run the upstream GRACE encoder with a reproducible 1:1:8 evaluator."""
++
++from __future__ import annotations
++
+ import argparse
++import json
+ import os.path as osp
+ import random
+-from time import perf_counter as t
+-import yaml
+-from yaml import SafeLoader
++from pathlib import Path
++from time import perf_counter
++from typing import Any
+
++import numpy as np
+ import torch
+-import torch_geometric.transforms as T
+-import torch.nn.functional as F
+ import torch.nn as nn
+-from torch_geometric.datasets import Planetoid, CitationFull
+-from torch_geometric.utils import dropout_adj
++import torch.nn.functional as F
++import torch_geometric.transforms as T
++import yaml
++from torch_geometric.datasets import CitationFull, Planetoid
+ from torch_geometric.nn import GCNConv
++from torch_geometric.utils import dropout_adj
++from yaml import SafeLoader
+
++from eval import label_classification, print_statistics, summarize
+ from model import Encoder, Model, drop_feature
+-from eval import label_classification
+
+
+-def train(model: Model, x, edge_index):
++UPSTREAM_REPOSITORY = "https://github.com/CRIPAC-DIG/GRACE.git"
++UPSTREAM_COMMIT = "b3b5ac3fcbaabbb50e8bd69a075b46cd82a50378"
++
++
++def set_seed(seed: int) -> None:
++    random.seed(seed)
++    np.random.seed(seed % (2**32 - 1))
++    torch.manual_seed(seed)
++    if torch.cuda.is_available():
++        torch.cuda.manual_seed_all(seed)
++    torch.backends.cudnn.deterministic = True
++    torch.backends.cudnn.benchmark = False
++
++
++def train_one_epoch(
++    model: Model,
++    x: torch.Tensor,
++    edge_index: torch.Tensor,
++    optimizer: torch.optim.Optimizer,
++    config: dict[str, Any],
++) -> float:
+     model.train()
+     optimizer.zero_grad()
+-    edge_index_1 = dropout_adj(edge_index, p=drop_edge_rate_1)[0]
+-    edge_index_2 = dropout_adj(edge_index, p=drop_edge_rate_2)[0]
+-    x_1 = drop_feature(x, drop_feature_rate_1)
+-    x_2 = drop_feature(x, drop_feature_rate_2)
++    edge_index_1 = dropout_adj(edge_index, p=config["drop_edge_rate_1"])[0]
++    edge_index_2 = dropout_adj(edge_index, p=config["drop_edge_rate_2"])[0]
++    x_1 = drop_feature(x, config["drop_feature_rate_1"])
++    x_2 = drop_feature(x, config["drop_feature_rate_2"])
+     z1 = model(x_1, edge_index_1)
+     z2 = model(x_2, edge_index_2)
+
+     loss = model.loss(z1, z2, batch_size=0)
+     loss.backward()
+     optimizer.step()
+-
+-    return loss.item()
+-
+-
+-def test(model: Model, x, edge_index, y, final=False):
+-    model.eval()
+-    z = model(x, edge_index)
+-
+-    label_classification(z, y, ratio=0.1)
+-
+-
+-if __name__ == '__main__':
+-    parser = argparse.ArgumentParser()
+-    parser.add_argument('--dataset', type=str, default='DBLP')
+-    parser.add_argument('--gpu_id', type=int, default=0)
+-    parser.add_argument('--config', type=str, default='config.yaml')
+-    args = parser.parse_args()
+-
+-    assert args.gpu_id in range(0, 8)
+-    torch.cuda.set_device(args.gpu_id)
+-
+-    config = yaml.load(open(args.config), Loader=SafeLoader)[args.dataset]
+-
+-    torch.manual_seed(config['seed'])
+-    random.seed(12345)
+-
+-    learning_rate = config['learning_rate']
+-    num_hidden = config['num_hidden']
+-    num_proj_hidden = config['num_proj_hidden']
+-    activation = ({'relu': F.relu, 'prelu': nn.PReLU()})[config['activation']]
+-    base_model = ({'GCNConv': GCNConv})[config['base_model']]
+-    num_layers = config['num_layers']
+-
+-    drop_edge_rate_1 = config['drop_edge_rate_1']
+-    drop_edge_rate_2 = config['drop_edge_rate_2']
+-    drop_feature_rate_1 = config['drop_feature_rate_1']
+-    drop_feature_rate_2 = config['drop_feature_rate_2']
+-    tau = config['tau']
+-    num_epochs = config['num_epochs']
+-    weight_decay = config['weight_decay']
+-
+-    def get_dataset(path, name):
+-        assert name in ['Cora', 'CiteSeer', 'PubMed', 'DBLP']
+-        name = 'dblp' if name == 'DBLP' else name
+-
+-        return (CitationFull if name == 'dblp' else Planetoid)(
+-            path,
+-            name,
+-            T.NormalizeFeatures())
+-
+-    path = osp.join(osp.expanduser('~'), 'datasets', args.dataset)
+-    dataset = get_dataset(path, args.dataset)
+-    data = dataset[0]
+-
+-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+-    data = data.to(device)
+-
+-    encoder = Encoder(dataset.num_features, num_hidden, activation,
+-                      base_model=base_model, k=num_layers).to(device)
+-    model = Model(encoder, num_hidden, num_proj_hidden, tau).to(device)
++    return float(loss.item())
++
++
++def get_dataset(path: str, name: str):
++    assert name in ["Cora", "CiteSeer", "PubMed", "DBLP"]
++    dataset_name = "dblp" if name == "DBLP" else name
++    dataset_cls = CitationFull if dataset_name == "dblp" else Planetoid
++    # PyG >= 2.x interprets the third positional argument as `split`; use a
++    # keyword so the upstream code remains compatible with current PyG.
++    return dataset_cls(path, dataset_name, transform=T.NormalizeFeatures())
++
++
++def build_model(dataset, config: dict[str, Any], device: torch.device) -> tuple[Model, torch.optim.Optimizer]:
++    activation = {"relu": F.relu, "prelu": nn.PReLU()}[config["activation"]]
++    base_model = {"GCNConv": GCNConv}[config["base_model"]]
++    encoder = Encoder(
++        dataset.num_features,
++        config["num_hidden"],
++        activation,
++        base_model=base_model,
++        k=config["num_layers"],
++    ).to(device)
++    model = Model(
++        encoder,
++        config["num_hidden"],
++        config["num_proj_hidden"],
++        config["tau"],
++    ).to(device)
+     optimizer = torch.optim.Adam(
+-        model.parameters(), lr=learning_rate, weight_decay=weight_decay)
++        model.parameters(),
++        lr=config["learning_rate"],
++        weight_decay=config["weight_decay"],
++    )
++    return model, optimizer
++
++
++def load_json(path: Path) -> dict[str, Any]:
++    with path.open("r", encoding="utf-8") as handle:
++        return json.load(handle)
++
++
++def write_json(path: Path, payload: dict[str, Any]) -> None:
++    path.parent.mkdir(parents=True, exist_ok=True)
++    with path.open("w", encoding="utf-8") as handle:
++        json.dump(payload, handle, indent=2, sort_keys=True)
++        handle.write("\n")
++
++
++def build_parser() -> argparse.ArgumentParser:
++    parser = argparse.ArgumentParser(description="Reproduce GRACE on Cora/CiteSeer with 1:1:8 and 10 runs")
++    parser.add_argument("--dataset", choices=["Cora", "CiteSeer"], required=True)
++    parser.add_argument("--gpu_id", type=int, default=0)
++    parser.add_argument("--config", default="config.yaml")
++    parser.add_argument("--data_root", default="~/datasets")
++    parser.add_argument("--runs", type=int, default=10)
++    parser.add_argument("--epochs", type=int)
++    parser.add_argument("--progress_every", type=int, default=50)
++    parser.add_argument("--output_dir", default="results")
++    parser.add_argument("--resume", action="store_true")
++    return parser
++
++
++def main() -> None:
++    args = build_parser().parse_args()
++    if args.runs <= 0:
++        raise ValueError("--runs must be positive")
++    if args.progress_every <= 0:
++        raise ValueError("--progress_every must be positive")
++    if not torch.cuda.is_available():
++        raise RuntimeError("GRACE reproduction requires CUDA for the requested run")
++    if args.gpu_id not in range(torch.cuda.device_count()):
++        raise ValueError(f"--gpu_id must be in [0, {torch.cuda.device_count() - 1}]")
+
+-    start = t()
+-    prev = start
+-    for epoch in range(1, num_epochs + 1):
+-        loss = train(model, data.x, data.edge_index)
+-
+-        now = t()
+-        print(f'(T) | Epoch={epoch:03d}, loss={loss:.4f}, '
+-              f'this epoch {now - prev:.4f}, total {now - start:.4f}')
+-        prev = now
+-
+-    print("=== Final ===")
+-    test(model, data.x, data.edge_index, data.y, final=True)
++    torch.cuda.set_device(args.gpu_id)
++    device = torch.device("cuda", args.gpu_id)
++    all_config = yaml.load(open(args.config, "r", encoding="utf-8"), Loader=SafeLoader)
++    config = all_config[args.dataset]
++    epochs = int(args.epochs if args.epochs is not None else config["num_epochs"])
++    output_dir = Path(args.output_dir)
++    output_dir.mkdir(parents=True, exist_ok=True)
++
++    dataset = get_dataset(osp.expanduser(args.data_root), args.dataset)
++    cpu_data = dataset[0]
++    data = cpu_data.to(device)
++    print(
++        f"[setup] dataset={args.dataset} nodes={data.num_nodes} features={dataset.num_features} "
++        f"classes={dataset.num_classes} edges={data.edge_index.size(1)} device={device} "
++        f"upstream_commit={UPSTREAM_COMMIT}",
++        flush=True,
++    )
++
++    run_results: list[dict[str, Any]] = []
++    for run_index in range(args.runs):
++        run_number = run_index + 1
++        run_path = output_dir / f"run_{run_number:02d}.json"
++        if args.resume and run_path.exists():
++            existing = load_json(run_path)
++            if existing.get("dataset") != args.dataset:
++                raise RuntimeError(f"resume result has a different dataset: {run_path}")
++            run_results.append(existing)
++            print(f"[resume] run={run_number}/{args.runs} loaded={run_path}", flush=True)
++            continue
++
++        train_seed = int(config["seed"]) + run_index
++        split_seed = int(config["seed"]) + 10000 + run_index
++        classifier_seed = int(config["seed"]) + 20000 + run_index
++        set_seed(train_seed)
++        model, optimizer = build_model(dataset, config, device)
++
++        start = perf_counter()
++        losses: list[float] = []
++        for epoch in range(1, epochs + 1):
++            loss = train_one_epoch(model, data.x, data.edge_index, optimizer, config)
++            losses.append(loss)
++            if epoch == 1 or epoch % args.progress_every == 0 or epoch == epochs:
++                elapsed = perf_counter() - start
++                print(
++                    f"(T) | run={run_number:02d}/{args.runs}, epoch={epoch:03d}, "
++                    f"loss={loss:.4f}, elapsed={elapsed:.1f}s",
++                    flush=True,
++                )
++
++        model.eval()
++        with torch.no_grad():
++            embedding = model(data.x, data.edge_index)
++        evaluation = label_classification(embedding, data.y, split_seed, classifier_seed)
++        row: dict[str, Any] = {
++            "dataset": args.dataset,
++            "run": run_number,
++            "train_seed": train_seed,
++            "split_seed": split_seed,
++            "classifier_seed": classifier_seed,
++            "epochs": epochs,
++            "final_loss": losses[-1],
++            "loss_first": losses[0],
++            "loss_history": losses,
++            "evaluation": evaluation,
++            "upstream": {
++                "repository": UPSTREAM_REPOSITORY,
++                "commit": UPSTREAM_COMMIT,
++            },
++        }
++        write_json(run_path, row)
++        run_results.append(row)
++        test = evaluation["test"]
++        print(
++            f"(R) | run={run_number:02d}/{args.runs}, "
++            f"test_accuracy={test['accuracy'] * 100.0:.4f}%, "
++            f"test_micro_f1={test['micro_f1'] * 100.0:.4f}%, "
++            f"test_macro_f1={test['macro_f1'] * 100.0:.4f}%, "
++            f"C=2^{evaluation['selected_C_exponent']}",
++            flush=True,
++        )
++
++    summary = summarize(run_results)
++    aggregate: dict[str, Any] = {
++        "dataset": args.dataset,
++        "runs_requested": args.runs,
++        "runs_completed": len(run_results),
++        "protocol": "official_grace_encoder_with_stratified_1_1_8_linear_evaluation",
++        "data_root": osp.expanduser(args.data_root),
++        "config": config,
++        "epochs": epochs,
++        "upstream": {
++            "repository": UPSTREAM_REPOSITORY,
++            "commit": UPSTREAM_COMMIT,
++        },
++        "runs": [
++            {
++                "run": row["run"],
++                "train_seed": row["train_seed"],
++                "split_seed": row["split_seed"],
++                "classifier_seed": row["classifier_seed"],
++                "final_loss": row["final_loss"],
++                "selected_C_exponent": row["evaluation"]["selected_C_exponent"],
++                "sizes": row["evaluation"]["sizes"],
++                "split_sha256": row["evaluation"]["split_sha256"],
++                "train_sha256": row["evaluation"]["train_sha256"],
++                "validation_sha256": row["evaluation"]["validation_sha256"],
++                "test_sha256": row["evaluation"]["test_sha256"],
++                "test": row["evaluation"]["test"],
++            }
++            for row in run_results
++        ],
++        "summary": summary,
++        "test_accessed": True,
++    }
++    write_json(output_dir / "aggregate.json", aggregate)
++    print_statistics(summary)
++    print(f"[done] aggregate={output_dir / 'aggregate.json'}", flush=True)
++
++
++if __name__ == "__main__":
++    main()
