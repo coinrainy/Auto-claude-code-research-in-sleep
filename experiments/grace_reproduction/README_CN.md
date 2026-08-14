@@ -12,6 +12,7 @@
 - embedding 只做 L2 normalization；用 train 拟合 `OneVsRest(LogisticRegression(solver=liblinear))`，在 validation 上从 `C=2^-10 ... 2^9` 选择 accuracy 最优者，随后只在 80% test 上评估一次，不使用 test 选择超参数。
 - 每个数据集独立运行 10 次。第 `i` 次（从 0 开始）的训练、划分、分类器种子分别为 `config.seed+i`、`config.seed+10000+i`、`config.seed+20000+i`。
 - 汇总报告 accuracy、micro-F1、macro-F1 的均值和总体标准差，百分比保留到 4 位小数。
+- 论文匹配模式使用 `--single_encoder --classifier_runs 20`：只训练一个 encoder，固定 embedding，随后用 20 组独立 split/classifier seed 重复线性评估。
 
 ## GCA 数据集配置补全
 
@@ -25,15 +26,16 @@ GCA runner 默认 seed `39788`；`Coauthor Physics` 使用 `batch_size=1024`
 
 ## 已完成结果
 
-Amazon Computers 和 Amazon Photo 的 1:1:8、10 次 GRACE 复现及论文对照见
-[amazon_grace_comparison.md](amazon_grace_comparison.md)。
+Amazon Computers 和 Amazon Photo 的 1:1:8、10 次独立 encoder 复现及论文对照见
+[amazon_grace_comparison.md](amazon_grace_comparison.md)；单 encoder、20 次线性分类器的结果见
+[amazon_grace_single_encoder_comparison.md](amazon_grace_single_encoder_comparison.md)。
 
 | 数据集 | test accuracy | test micro-F1 | test macro-F1 |
 |---|---:|---:|---:|
 | Cora | 82.8235% ± 0.8653% | 82.8235% ± 0.8653% | 81.3026% ± 0.9512% |
 | CiteSeer | 71.6535% ± 0.6459% | 71.6535% ± 0.6459% | 63.7752% ± 1.9799% |
 
-完整的 20 个 run 收据（含 seed、split 尺寸、split SHA-256、validation 选出的 C、loss history 和测试指标）位于 `results/`。`aggregate.json` 是汇总入口。
+各实验的 run/classifier 收据（含 seed、split 尺寸、split SHA-256、validation 选出的 C、loss history 和测试指标）位于 `results/`。`aggregate.json` 是汇总入口。
 
 ## 重跑
 
@@ -58,6 +60,17 @@ git -C ../GRACE apply experiments/grace_reproduction/upstream_grace_1_1_8.patch
   --config ../GRACE/config.yaml \
   --data_root /root/autodl-tmp/G-02-baseline-data/pyg \
   --runs 10
+```
+
+论文匹配的单 encoder 模式示例：
+
+```bash
+../.venv-g02/bin/python ../GRACE/train.py \
+  --dataset Amazon-Computers \
+  --config ../GRACE/config.yaml \
+  --data_root /root/autodl-tmp/G-02-baseline-data/pyg \
+  --single_encoder \
+  --classifier_runs 20
 ```
 
 ## 环境和数据
