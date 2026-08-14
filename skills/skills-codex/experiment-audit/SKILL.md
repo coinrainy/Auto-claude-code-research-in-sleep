@@ -1,6 +1,6 @@
 ---
 name: experiment-audit
-description: "Audit experiment integrity before claiming results. Uses fresh-agent GPT-5.6-Sol review (same-family provisional in the base Codex mirror) to check for fake ground truth, score normalization fraud, phantom results, and insufficient scope. Use when user says \"审计实验\", \"check experiment integrity\", \"audit results\", \"实验诚实度\", or after experiments complete before writing claims."
+description: "Audit experiment integrity before claiming results. Uses fresh-agent gpt-5.5 review (same-family provisional in the base Codex mirror) to check for fake ground truth, score normalization fraud, phantom results, and insufficient scope. Use when user says \"审计实验\", \"check experiment integrity\", \"audit results\", \"实验诚实度\", or after experiments complete before writing claims."
 argument-hint: "[experiment-dir-or-results-path]"
 allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
 ---
@@ -32,7 +32,7 @@ This follows `shared-references/reviewer-independence.md` and `shared-references
 
 ## Constants
 
-- **REVIEWER_BACKEND = `codex`** — Default: Codex reviewer agent (`spawn_agent`, ultra — deep-audit tier). Override with `— reviewer: oracle-pro` for GPT-5.5 Pro via Oracle MCP. See `shared-references/reviewer-routing.md`.
+- **REVIEWER_BACKEND = `codex`** — Default: Codex reviewer agent (`spawn_agent`, xhigh — deep-audit tier). Override with `— reviewer: oracle-pro` for GPT-5.5 Pro via Oracle MCP. See `shared-references/reviewer-routing.md`.
 
 ## Workflow
 
@@ -52,14 +52,14 @@ Scan project directory for:
 
 **DO NOT summarize, interpret, or explain any file content.** Only collect paths.
 
-### Step 2: Send to Reviewer (GPT-5.6-Sol via Codex MCP)
+### Step 2: Send to Reviewer (gpt-5.5 via Codex MCP)
 
 Pass ONLY file paths and the audit checklist to the reviewer. The reviewer reads everything directly.
 
 ```text
 spawn_agent:
-  model: gpt-5.6-sol
-  reasoning_effort: ultra
+  model: gpt-5.5
+  reasoning_effort: xhigh
   message: |
     You are an experiment integrity auditor. Start from the assumption that the
     evaluation is compromised somewhere — your job is to find where. Be
@@ -140,7 +140,7 @@ Parse the reviewer's response and write `EXPERIMENT_AUDIT.md`:
 # Experiment Audit Report
 
 **Date**: [today]
-**Auditor**: GPT-5.6-Sol ultra (fresh same-family agent, read-only, provisional)
+**Auditor**: gpt-5.5 xhigh (fresh same-family agent, read-only, provisional)
 **Project**: [project name]
 
 ## Overall Verdict: [PASS | WARN | FAIL]
@@ -187,16 +187,16 @@ Also write `EXPERIMENT_AUDIT.json` for machine consumption:
   "trace_path": ".aris/traces/experiment-audit/2026-04-10_run01/",
   "agent_id": "agent_019f...",
   "verdict_id": "agent_019f...",
-  "executor_model": "codex-gpt-5.6-sol",
+  "executor_model": "codex-gpt-5.5",
   "executor_family": "openai",
-  "reviewer_model": "gpt-5.6-sol",
+  "reviewer_model": "gpt-5.5",
   "reviewer_family": "openai",
-  "reviewer_reasoning": "ultra",
+  "reviewer_reasoning": "xhigh",
   "review_independence": "same-family",
   "acceptance_status": "provisional",
   "generated_at": "2026-04-10T00:00:00Z",
   "date": "2026-04-10",
-  "auditor": "gpt-5.6-sol-ultra",
+  "auditor": "gpt-5.5-xhigh",
   "overall_verdict": "warn",
   "integrity_status": "warn",
   "checks": {

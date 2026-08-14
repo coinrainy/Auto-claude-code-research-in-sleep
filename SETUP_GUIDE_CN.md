@@ -2,7 +2,9 @@
 
 > 从零开始，手把手完成 ARIS 的全部配置。完成后你就可以使用 ARIS 的完整研究工作流。
 >
-> 本指南面向 **macOS 本地 + 远程 Linux GPU 服务器** 环境，使用 **Claude Code 作为执行者、Codex MCP（GPT）作为审稿人** 的推荐配置。
+> G-03 本地配置使用 **Codex CLI 同时作为执行者和审稿人**，固定为
+> **`gpt-5.5` + `reasoning_effort: xhigh`**。本项目不启用
+> Claude/Gemini/Copilot/Oracle 路线。
 >
 > [English](SETUP_GUIDE.md) | 中文版
 
@@ -10,38 +12,23 @@
 
 ## 第一步：安装必要工具
 
-### 1.1 Claude Code
+### 1.1 Codex CLI
 
-Claude Code 是 Anthropic 的 CLI 工具，ARIS 的所有 skill 都在它上面运行。安装方式见 [Claude Code 官方文档](https://docs.anthropic.com/en/docs/claude-code)。
-
-```bash
-claude --version   # 验证安装
-```
-
-### 1.2 Codex CLI + MCP 注册
-
-Codex CLI 是 OpenAI 的 CLI 工具，ARIS 通过它调用 GPT 作为跨模型审稿人。安装方式见 [Codex CLI 官方文档](https://developers.openai.com/codex)。
-
-安装完成后，先做一次性 ChatGPT 登录（浏览器流程），再把 Codex CLI 注册成 Claude Code 的 MCP server：
+Codex CLI 是本项目唯一的 agent 运行时。请按照 [Codex CLI 官方文档](https://developers.openai.com/codex) 安装，然后完成一次登录：
 
 ```bash
-codex --version   # 验证安装
-codex login       # 一次性 ChatGPT 登录（已登录可跳过）
-claude mcp add codex -s user -- codex mcp-server
+codex --version
+codex login       # 已登录可跳过
 ```
 
-- `codex`（add 后面）— 注册名称。ARIS 的 skill 硬编码了这个名字，**不要改**
-- `-s user` — 全局生效，所有项目都能用
-- `codex mcp-server` — Codex CLI 内置的子命令，启动 MCP 服务模式
-
-注册后需要**重启 Claude Code** 才会生效。验证：
+使用项目包装器启动固定路由：
 
 ```bash
-claude mcp list | grep codex
-# 应显示: codex: codex mcp-server - ✓ Connected
+./tools/codex-gpt55-xhigh.sh
 ```
 
-> **⚠️ 重要提示**：注册或修改任何 MCP server 后，**必须重启 Claude Code** 才能生效。MCP 配置在启动时加载。如需为其他模型组合注册额外的 MCP server，请参见 [3.2 注册 MCP 服务（可选）](#32-注册-mcp-服务可选)。
+包装器会拒绝模型覆盖，并在每次调用中传入精确的模型和推理设置。
+如果该模型/强度不可用，应停止并报告不可用，不得自动切换供应商。
 
 ### 1.3 LaTeX 环境（可选）
 
@@ -62,13 +49,13 @@ latexmk --version && pdfinfo -v
 mkdir ~/your-paper-project
 cd ~/your-paper-project
 git init
-touch CLAUDE.md
+touch AGENTS.md
 ```
 
 - `git init` — 部分技能需要 git 来定位项目根目录
-- `CLAUDE.md` — Claude Code 的项目配置文件，安装脚本会向其中写入 ARIS 信息
+- `AGENTS.md` — Codex 项目指令文件，安装脚本会向其中写入 ARIS 管理区块
 
-## 第三步：安装 Skills 和配置 MCP
+## 第三步：安装 Codex Skills
 
 ### 3.1 安装 Skills
 
@@ -80,7 +67,7 @@ git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git ~
 
 # 2. 在每个使用 ARIS 的项目中安装（通过符号链接）：
 cd ~/your-paper-project
-bash ~/aris_repo/tools/install_aris.sh
+bash ~/aris_repo/tools/install_aris_codex.sh . --all --quiet
 
 # 只装需要的 skill（选择性安装）：
 bash ~/aris_repo/tools/install_aris.sh --list-groups                  # 查看 10 个功能分组
@@ -96,10 +83,9 @@ bash ~/aris_repo/tools/install_aris.sh --uninstall      # 按安装清单卸载�
 脚本会显示安装计划并要求确认（输入 `y`），详见 [`install_aris.sh`](tools/install_aris.sh)：
 
 ```
-.claude/skills/<skill>        ← 每个 skill 一个符号链接 → ~/aris_repo/skills/<skill>
-.aris/installed-skills.txt    ← 安装清单（追踪 ARIS 创建的每条 skill symlink）
-.aris/tools                   ← → ~/aris_repo/tools/（工具脚本）
-CLAUDE.md                     ← 更新 ARIS 配置区块
+.agents/skills/<skill>        ← 每个 skill 一个符号链接 → ~/aris_repo/skills/skills-codex/<skill>
+.aris/installed-skills-codex.txt ← 安装清单
+AGENTS.md                     ← 更新 ARIS Codex 配置区块
 ```
 
 符号链接直接引用 ARIS 仓库源文件，不复制内容。更新时分两种情况：
@@ -113,10 +99,14 @@ cd ~/aris_repo && git pull
 # 需要先拉取最新代码，再重新运行安装脚本
 cd ~/aris_repo && git pull
 cd ~/your-paper-project
-bash ~/aris_repo/tools/install_aris.sh
+bash ~/aris_repo/tools/install_aris_codex.sh . --reconcile
 ```
 
-### 3.2 注册 MCP 服务（可选）
+### 3.2 MCP 服务
+
+G-03 不注册 Claude/Gemini/Oracle/Copilot 审稿 MCP。Codex mirror 使用原生
+Codex 审稿契约，所有审稿调用固定为 `gpt-5.5` + `xhigh`。下面的表格仅
+保留上游其他组合的说明。
 
 根据你选择的模型组合，除了 Step 1.2 中已注册的默认 `codex` MCP 外，你可能还需要注册额外的 MCP 服务。ARIS 提供了以下 MCP 服务：
 

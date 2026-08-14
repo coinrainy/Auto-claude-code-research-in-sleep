@@ -1,22 +1,22 @@
 # Reviewer Routing
 
-## Default Reviewer Contract
+## G-03 Codex-only Reviewer Contract
 
-All reviewer-heavy Codex base skills use the same default contract:
+All reviewer-heavy Codex base skills use one pinned contract:
 
 - executor: current Codex main agent
-- reviewer: second Codex reviewer, model `gpt-5.6-sol` (GPT-5.6-Sol)
-- reasoning effort: **two tiers** (since 2026-07-10; `ultra`/`max` need codex-cli ≥ 0.144.1) —
-  **deep-audit** skills use `ultra` (`proof-checker`, `kill-argument` core threads, `research-review`,
-  `experiment-audit`, `paper-claim-audit`, `result-to-claim`, `meta-apply`); **every other**
-  reviewer call uses `xhigh` (multi-round loops and per-item fan-outs stay `xhigh` — a
-  follow-up `send_input` cannot change model/effort, and per-item `ultra` multiplies cost)
+- reviewer: second Codex reviewer, model `gpt-5.5`
+- reasoning effort: `xhigh` for every call, including deep audits and follow-ups
 - round 1: `spawn_agent`
 - follow-up rounds: `send_input`
 
-This is the base default for `skills/skills-codex/`. No ARIS `— effort:` level or unrelated parameter changes the tier (ARIS `— effort: max` ≠ `reasoning_effort: max` — pipeline workload vs reviewer reasoning are different axes).
+No ARIS `— effort:` level changes the reviewer pin. If `gpt-5.5` or
+`reasoning_effort: xhigh` is unavailable, emit `REVIEW_UNAVAILABLE`; never
+silently fall back to another model, provider, overlay, or backend.
 
-**Capability fallback (first spawn of each tier only):** if `spawn_agent` errors explicitly on the effort enum (older codex-cli — applies only to the deep tier's `ultra`; `xhigh` predates 0.144.1), retry `reasoning_effort: xhigh`; if it errors explicitly on the model being unknown/unavailable to this account, retry `model: gpt-5.5` + `xhigh`. NEVER downgrade on timeout / rate-limit / auth / transport / server / context-length errors (risk of double-running). Never run a verdict-bearing review below `xhigh`; if no allowed pair works, report `REVIEW_UNAVAILABLE` — never substitute the executor's own judgment.
+This is the project-local default for `skills/skills-codex/`. The upstream
+optional `oracle-pro`, `agy`, `manual`, `copilot`, Claude-review, and
+Gemini-review routes are disabled by the G-03 Codex-only policy.
 
 > ⚠️ **Same-family by default — provisional, never accepted.** The executor here
 > is Codex (GPT family) and the reviewer is a fresh Codex agent from the same
@@ -40,8 +40,8 @@ Single-round review:
 
 ```text
 spawn_agent:
-  model: gpt-5.6-sol
-  reasoning_effort: xhigh   # deep-audit skills: ultra (see tier table above)
+  model: gpt-5.5
+  reasoning_effort: xhigh
   message: |
     [role + task]
     Read the listed files directly.
@@ -51,8 +51,8 @@ Multi-round review:
 
 ```text
 spawn_agent:
-  model: gpt-5.6-sol
-  reasoning_effort: xhigh   # deep-audit skills: ultra (see tier table above)
+  model: gpt-5.5
+  reasoning_effort: xhigh
   message: |
     [initial review prompt]
 ```
@@ -70,7 +70,7 @@ send_input:
 
 When the user explicitly passes `--reviewer: oracle-pro`, switch only the reviewer route:
 
-- default reviewer remains Codex at the call's declared tier (deep-audit: ultra / regular: xhigh) if no reviewer is specified
+- default reviewer remains Codex at the call's declared tier (deep-audit: xhigh / regular: xhigh) if no reviewer is specified
 - `oracle-pro` is optional, not the base default
 
 Routing rule:

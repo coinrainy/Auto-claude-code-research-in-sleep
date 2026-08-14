@@ -2,12 +2,21 @@
 
 > **For AI agents reading this repo cold.** If you are a human, see [README.md](README.md) or [docs/ARIS_INTRO.html](https://wanshuiyin.github.io/Auto-claude-code-research-in-sleep/ARIS_INTRO.html).
 
-ARIS is a research harness: composable Markdown skills that orchestrate the ML research lifecycle through cross-model adversarial collaboration. Executor (Claude / Codex / Cursor / Antigravity / Copilot CLI) writes code & papers; reviewer (GPT-5.6-Sol via Codex MCP, Claude / Gemini via `claude-review` / `gemini-review` MCP, or Copilot's evidence-gated native complementary reviewer for `/auto-review-loop`) critiques independently.
+ARIS is a research harness: composable Markdown skills that orchestrate the ML research lifecycle through cross-model adversarial collaboration. Executor (Claude / Codex / Cursor / Antigravity / Copilot CLI) writes code & papers; reviewer (gpt-5.5 via Codex MCP, Claude / Gemini via `claude-review` / `gemini-review` MCP, or Copilot's evidence-gated native complementary reviewer for `/auto-review-loop`) critiques independently.
 
 > **Source of Truth.** This file is a *routing index*, not a specification.
 > Behavior of a skill lives in `skills/<name>/SKILL.md`. System-wide
 > contracts live in `skills/shared-references/*.md`. If this guide
 > conflicts with a SKILL.md, the **SKILL.md wins**.
+
+## G-03 local execution override
+
+This checkout is Codex-only: Codex is both the executor and the reviewer. Do
+not start Claude Code, Claude/Gemini review overlays, Copilot, Oracle, or an
+arbitrary OpenAI-compatible reviewer. The pinned pair is `gpt-5.5` with
+`reasoning_effort: xhigh`; if that exact pair is unavailable, stop with
+`REVIEW_UNAVAILABLE` rather than silently switching models or backends. Use
+`tools/codex-gpt55-xhigh.sh` to start Codex with the same pins.
 
 ## Skill Locations & Platforms
 
@@ -41,7 +50,7 @@ ARIS has **two independent control axes** plus scoped flags.
 — effort: lite | balanced | max | beast      # default: balanced
 ```
 
-Controls how many papers / ideas / rounds / pilots. Codex reasoning never drops below the tier floor regardless of effort (regular reviews `xhigh`; the deep-audit skills run `ultra` — see `skills/shared-references/reviewer-routing.md`).
+Controls how many papers / ideas / rounds / pilots. Codex reasoning never drops below the tier floor regardless of effort (regular reviews `xhigh`; the deep-audit skills run `xhigh` — see `skills/shared-references/reviewer-routing.md`).
 
 ### Axis 2 — `assurance` (audit strictness, independent of effort)
 
@@ -172,13 +181,13 @@ Advisory CI lint at `.github/workflows/lint-skills-helpers.yml` flags hardcoded 
 ## Cross-Model Protocol
 
 - **Executor** (Claude / Codex / Cursor / Antigravity / Copilot): writes code, runs experiments, drafts papers
-- **Reviewer** (GPT-5.6-Sol via Codex MCP, default; or Claude / Gemini via `*-review` MCP overlays): critiques, scores, demands revisions
+- **Reviewer** (gpt-5.5 via Codex MCP, default; or Claude / Gemini via `*-review` MCP overlays): critiques, scores, demands revisions
 - **Rule**: executor and reviewer **must** be different model families. Same-family review is a non-feature.
 - **Reviewer independence**: pass file paths only, never summaries or interpretations
 - **Thread freshness**: every reviewer call uses `mcp__codex__codex` (or equivalent), **never** `codex-reply` — narrative accumulation inflates scores
 - **Experiment integrity**: executor must NOT judge its own eval code — reviewer audits directly per [`shared-references/experiment-integrity.md`](skills/shared-references/experiment-integrity.md)
 
-The external Codex default is `gpt-5.6-sol` with two-tier reasoning (deep-audit `ultra` / regular `xhigh`, since 2026-07-10; needs codex-cli ≥ 0.144.1). `gpt-5.5` is the capability fallback; legacy `gpt-5.4` is available as `--- reviewer-model: gpt-5.4`. In a bound Copilot CLI session, `/auto-review-loop` instead defaults to the built-in `rubber-duck` subagent and accepts it only when host events prove the dynamically selected model is from a different family. Oracle Pro tier (`gpt-5.5-pro`) via `--- reviewer: oracle-pro` is a separate routing path.
+The external Codex default for this checkout is `gpt-5.5` with `xhigh` reasoning for every reviewer call. There is no automatic model or backend fallback; unsupported access is `REVIEW_UNAVAILABLE`. The alternative Copilot, Oracle, Claude, Gemini, and legacy-model routes remain upstream documentation only and are disabled by the G-03 local execution override above.
 
 ## Shared References
 

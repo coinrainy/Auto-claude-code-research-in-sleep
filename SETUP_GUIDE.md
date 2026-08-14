@@ -2,7 +2,9 @@
 
 > Get ARIS fully configured from scratch. Once done, you're ready to use the complete research workflow.
 >
-> This guide targets a **macOS local + remote Linux GPU server** setup with the recommended configuration: **Claude Code as executor, Codex MCP (GPT) as reviewer**.
+> This G-03 checkout uses **Codex CLI as both executor and reviewer**, pinned to
+> **`gpt-5.5` + `reasoning_effort: xhigh`**. Claude/Gemini/Copilot/Oracle
+> routes are not part of this project configuration.
 >
 > English | [中文版](SETUP_GUIDE_CN.md)
 
@@ -10,38 +12,25 @@
 
 ## Step 1: Install Required Tools
 
-### 1.1 Claude Code
+### 1.1 Codex CLI
 
-Claude Code is Anthropic's CLI tool — all ARIS skills run on top of it. See the [Claude Code docs](https://docs.anthropic.com/en/docs/claude-code) for installation.
-
-```bash
-claude --version   # verify installation
-```
-
-### 1.2 Codex CLI + MCP Registration
-
-Codex CLI is OpenAI's CLI tool — ARIS uses it to call GPT as a cross-model reviewer. See the [Codex CLI docs](https://developers.openai.com/codex) for installation.
-
-After installing, authenticate Codex (one-time, opens a browser to log in to ChatGPT) and register it as a Claude Code MCP server:
+Codex CLI is the only agent runtime used by this checkout. Install it from the
+[Codex CLI docs](https://developers.openai.com/codex), then authenticate once:
 
 ```bash
-codex --version   # verify installation
-codex login       # one-time ChatGPT auth (skip if already logged in)
-claude mcp add codex -s user -- codex mcp-server
+codex --version
+codex login       # skip if already authenticated
 ```
 
-- `codex` (after `add`) — the registered name. ARIS skills hardcode this name, **do not change it**
-- `-s user` — applies globally to all projects
-- `codex mcp-server` — built-in subcommand that starts the MCP server mode
-
-Restart Claude Code after registration. Verify:
+Start this project's pinned runtime with:
 
 ```bash
-claude mcp list | grep codex
-# should show: codex: codex mcp-server - ✓ Connected
+./tools/codex-gpt55-xhigh.sh
 ```
 
-> **⚠️ Important**: After registering or modifying any MCP server, you **must restart Claude Code** for the change to take effect. MCP configurations are loaded at startup. For additional MCP servers needed by alternative model combinations, see [Step 3.2](#32-register-mcp-servers-optional).
+The wrapper rejects model overrides and supplies the exact model and reasoning
+settings on every invocation. If the pair is unavailable, stop rather than
+falling back to another provider.
 
 ### 1.3 LaTeX Environment (Optional)
 
@@ -62,13 +51,13 @@ latexmk --version && pdfinfo -v
 mkdir ~/your-paper-project
 cd ~/your-paper-project
 git init
-touch CLAUDE.md
+touch AGENTS.md
 ```
 
 - `git init` — some skills need git to locate the project root
-- `CLAUDE.md` — Claude Code's project config file; the install script will write ARIS info into it
+- `AGENTS.md` — Codex project instructions; the install script writes the ARIS managed block into it
 
-## Step 3: Install Skills and Configure MCP
+## Step 3: Install Codex Skills
 
 ### 3.1 Install Skills
 
@@ -80,7 +69,7 @@ git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git ~
 
 # 2. Install in each project that uses ARIS (via symlinks):
 cd ~/your-paper-project
-bash ~/aris_repo/tools/install_aris.sh
+bash ~/aris_repo/tools/install_aris_codex.sh . --all --quiet
 
 # Install only what you need (selective install):
 bash ~/aris_repo/tools/install_aris.sh --list-groups                  # show the 10 skill groups
@@ -96,10 +85,9 @@ bash ~/aris_repo/tools/install_aris.sh --uninstall      # uninstall per manifest
 The script shows an install plan and asks for confirmation (type `y`). See [`install_aris.sh`](tools/install_aris.sh):
 
 ```
-.claude/skills/<skill>        ← one symlink per skill → ~/aris_repo/skills/<skill>
-.aris/installed-skills.txt    ← install manifest (tracks every skill symlink ARIS created)
-.aris/tools                   ← → ~/aris_repo/tools/ (helper scripts)
-CLAUDE.md                     ← updates the ARIS config block
+.agents/skills/<skill>        ← one symlink per skill → ~/aris_repo/skills/skills-codex/<skill>
+.aris/installed-skills-codex.txt ← install manifest
+AGENTS.md                     ← updates the ARIS Codex config block
 ```
 
 Symlinks reference ARIS repo source files directly — no copies. Updates fall into two cases:
@@ -113,10 +101,15 @@ cd ~/aris_repo && git pull
 # pull first, then rerun the install script to sync
 cd ~/aris_repo && git pull
 cd ~/your-paper-project
-bash ~/aris_repo/tools/install_aris.sh
+bash ~/aris_repo/tools/install_aris_codex.sh . --reconcile
 ```
 
-### 3.2 Register MCP Servers (Optional)
+### 3.2 MCP Servers
+
+G-03 does not register Claude/Gemini/Oracle/Copilot reviewer MCP servers. The
+Codex mirror uses the native Codex reviewer contract and keeps all reviewer
+calls at `gpt-5.5` + `xhigh`. The remaining table documents upstream
+alternative combinations only.
 
 Depending on your model combination, you may need to register additional MCP servers beyond the default `codex` registered in Step 1.2. ARIS ships the following MCP servers:
 

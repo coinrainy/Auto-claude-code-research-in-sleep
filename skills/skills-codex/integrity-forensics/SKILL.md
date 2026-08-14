@@ -72,7 +72,7 @@ Resolve `forensics_gate.py` via the canonical helper chain
 
 ```bash
 python3 "$GATE_HELPER" evaluate --report "$PAPER_DIR/report.json" --paper-dir "$PAPER_DIR" \
-    --anti-ar-commit "$ANTI_AR_COMMIT" --executor-model "codex-gpt-5.6-sol"
+    --anti-ar-commit "$ANTI_AR_COMMIT" --executor-model "codex-gpt-5.5"
 ```
 
 Policy: `HARD_FLAGS` → **BLOCK** · `REVIEW_UNAVAILABLE` → **BLOCK** (which a
