@@ -1,3 +1,128 @@
+diff --git a/README.md b/README.md
+index 3537015..bc3740e 100644
+--- a/README.md
++++ b/README.md
+@@ -12,7 +12,15 @@ Train and evaluate the model by executing
+ ```
+ python train.py --dataset Cora
+ ```
+-The `--dataset` argument should be one of [ Cora, CiteSeer, PubMed, DBLP ].
++The `--dataset` argument supports `Cora`, `CiteSeer`, `PubMed`, `DBLP`,
++`Amazon Computers`, `Amazon Photo`, `Coauthor CS`, and `Coauthor Physics`
++(hyphenated and short aliases such as `Amazon-Computers`, `Photo`, and
++`Coauthor-Phy` are also accepted).
++
++The four Amazon/Coauthor bundles in `config.yaml` use the official GCA
++`param/*.json` values for the uniform-drop GRACE-equivalent setting. The
++Coauthor Physics bundle uses `batch_size: 1024` to match the official GCA
++large-graph loss path; the other bundles use full-batch InfoNCE.
+
+ ## Requirements
+
+diff --git a/config.yaml b/config.yaml
+index 47f018b..b2b2e84 100644
+--- a/config.yaml
++++ b/config.yaml
+@@ -13,6 +13,7 @@ Cora:
+   tau: 0.4
+   num_epochs: 200
+   weight_decay: 0.00001
++  batch_size: 0
+ CiteSeer:
+   seed: 38108
+   learning_rate: 0.001
+@@ -28,6 +29,7 @@ CiteSeer:
+   tau: 0.9
+   num_epochs: 200
+   weight_decay: 0.00001
++  batch_size: 0
+ PubMed:
+   seed: 23344
+   learning_rate: 0.001
+@@ -43,6 +45,7 @@ PubMed:
+   tau: 0.7
+   num_epochs: 1500
+   weight_decay: 0.00001
++  batch_size: 0
+ DBLP:
+   seed: 83521
+   learning_rate: 0.001
+@@ -57,4 +60,73 @@ DBLP:
+   drop_feature_rate_2: 0.0
+   tau: 0.7
+   num_epochs: 1000
+-  weight_decay: 0.00001
+\ No newline at end of file
++  weight_decay: 0.00001
++  batch_size: 0
++
++# The following four bundles copy the official GCA param/*.json files for
++# their uniform-drop (GRACE-equivalent) setting. GCA has no per-dataset seed
++# in these files; the runner default 39788 is recorded for reproducibility.
++"Amazon Computers":
++  seed: 39788
++  learning_rate: 0.01
++  num_hidden: 128
++  num_proj_hidden: 128
++  activation: 'rrelu'
++  base_model: 'GCNConv'
++  num_layers: 2
++  drop_edge_rate_1: 0.6
++  drop_edge_rate_2: 0.3
++  drop_feature_rate_1: 0.2
++  drop_feature_rate_2: 0.3
++  tau: 0.2
++  num_epochs: 2000
++  weight_decay: 0.00001
++  batch_size: 0
++"Amazon Photo":
++  seed: 39788
++  learning_rate: 0.1
++  num_hidden: 256
++  num_proj_hidden: 64
++  activation: 'relu'
++  base_model: 'GCNConv'
++  num_layers: 2
++  drop_edge_rate_1: 0.3
++  drop_edge_rate_2: 0.5
++  drop_feature_rate_1: 0.1
++  drop_feature_rate_2: 0.1
++  tau: 0.3
++  num_epochs: 2000
++  weight_decay: 0.00001
++  batch_size: 0
++"Coauthor CS":
++  seed: 39788
++  learning_rate: 0.0005
++  num_hidden: 256
++  num_proj_hidden: 256
++  activation: 'rrelu'
++  base_model: 'GCNConv'
++  num_layers: 2
++  drop_edge_rate_1: 0.3
++  drop_edge_rate_2: 0.2
++  drop_feature_rate_1: 0.3
++  drop_feature_rate_2: 0.4
++  tau: 0.4
++  num_epochs: 1000
++  weight_decay: 0.00001
++  batch_size: 0
++"Coauthor Physics":
++  seed: 39788
++  learning_rate: 0.01
++  num_hidden: 128
++  num_proj_hidden: 64
++  activation: 'rrelu'
++  base_model: 'GCNConv'
++  num_layers: 2
++  drop_edge_rate_1: 0.4
++  drop_edge_rate_2: 0.1
++  drop_feature_rate_1: 0.1
++  drop_feature_rate_2: 0.4
++  tau: 0.5
++  num_epochs: 1500
++  weight_decay: 0.00001
++  batch_size: 1024
 diff --git a/eval.py b/eval.py
 index d719230..ccec77e 100644
 --- a/eval.py
@@ -257,11 +382,67 @@ index d719230..ccec77e 100644
 +        f"macro_f1={test['macro_f1']['mean_percent']:.4f}%+-{test['macro_f1']['std_percent']:.4f}%",
 +        flush=True,
 +    )
+diff --git a/model.py b/model.py
+index d9b24f6..5915221 100644
+--- a/model.py
++++ b/model.py
+@@ -99,6 +99,51 @@ class Model(torch.nn.Module):
+
+         return torch.cat(losses)
+
++    def batched_semi_loss_chunk(self, z1: torch.Tensor, z2: torch.Tensor,
++                                start: int, batch_size: int) -> torch.Tensor:
++        """Compute one batch without retaining the other batch graphs."""
++        device = z1.device
++        num_nodes = z1.size(0)
++        end = min(start + batch_size, num_nodes)
++        indices = torch.arange(start, end, device=device)
++        f = lambda x: torch.exp(x / self.tau)
++        refl_sim = f(self.sim(z1[indices], z1))
++        between_sim = f(self.sim(z1[indices], z2))
++        positive = between_sim[:, start:end].diag()
++        return -torch.log(
++            positive
++            / (refl_sim.sum(1) + between_sim.sum(1) - refl_sim[:, start:end].diag())
++        )
++
++    def loss_backward(self, z1: torch.Tensor, z2: torch.Tensor,
++                      batch_size: int) -> float:
++        """Backpropagate batched InfoNCE one chunk at a time.
++
++        This is algebraically the same mean as ``loss(..., batch_size=...)``;
++        only the autograd lifetime changes, which is required for the large
++        Coauthor Physics graph.
++        """
++        if batch_size <= 0:
++            raise ValueError("loss_backward requires a positive batch_size")
++
++        h1 = self.projection(z1)
++        h2 = self.projection(z2)
++        num_nodes = h1.size(0)
++        starts = list(range(0, num_nodes, batch_size))
++        total = 0.0
++        num_chunks = 2 * len(starts)
++        chunk_index = 0
++        for anchor, target in ((h1, h2), (h2, h1)):
++            for start in starts:
++                chunk = self.batched_semi_loss_chunk(anchor, target, start, batch_size)
++                chunk_sum = chunk.sum()
++                chunk_index += 1
++                scaled = chunk_sum * (0.5 / num_nodes)
++                scaled.backward(retain_graph=chunk_index < num_chunks)
++                total += float(chunk_sum.detach().item())
++
++        return total / (2.0 * num_nodes)
++
+     def loss(self, z1: torch.Tensor, z2: torch.Tensor,
+              mean: bool = True, batch_size: int = 0):
+         h1 = self.projection(z1)
 diff --git a/train.py b/train.py
-index b363491..3bd672a 100644
+index b363491..a52154c 100644
 --- a/train.py
 +++ b/train.py
-@@ -1,107 +1,254 @@
+@@ -1,107 +1,304 @@
 +"""Run the upstream GRACE encoder with a reproducible 1:1:8 evaluator."""
 +
 +from __future__ import annotations
@@ -287,7 +468,7 @@ index b363491..3bd672a 100644
 +import torch.nn.functional as F
 +import torch_geometric.transforms as T
 +import yaml
-+from torch_geometric.datasets import CitationFull, Planetoid
++from torch_geometric.datasets import Amazon, CitationFull, Coauthor, Planetoid
  from torch_geometric.nn import GCNConv
 +from torch_geometric.utils import dropout_adj
 +from yaml import SafeLoader
@@ -300,6 +481,32 @@ index b363491..3bd672a 100644
 -def train(model: Model, x, edge_index):
 +UPSTREAM_REPOSITORY = "https://github.com/CRIPAC-DIG/GRACE.git"
 +UPSTREAM_COMMIT = "b3b5ac3fcbaabbb50e8bd69a075b46cd82a50378"
++GCA_PARAMETER_SOURCE = "https://github.com/CRIPAC-DIG/GCA/tree/main/param"
++
++DATASET_ALIASES = {
++    "cora": "Cora",
++    "citeseer": "CiteSeer",
++    "pubmed": "PubMed",
++    "dblp": "DBLP",
++    "amazoncomputers": "Amazon Computers",
++    "computers": "Amazon Computers",
++    "amazonphoto": "Amazon Photo",
++    "photo": "Amazon Photo",
++    "coauthorcs": "Coauthor CS",
++    "cs": "Coauthor CS",
++    "coauthorphysics": "Coauthor Physics",
++    "coauthorphy": "Coauthor Physics",
++    "physics": "Coauthor Physics",
++}
++
++
++def canonical_dataset_name(raw: str) -> str:
++    compact = raw.lower().replace("-", "").replace("_", "").replace(" ", "")
++    try:
++        return DATASET_ALIASES[compact]
++    except KeyError as exc:
++        supported = ", ".join(sorted(set(DATASET_ALIASES.values())))
++        raise ValueError(f"unsupported dataset {raw!r}; choose from: {supported}") from exc
 +
 +
 +def set_seed(seed: int) -> None:
@@ -332,30 +539,127 @@ index b363491..3bd672a 100644
      z1 = model(x_1, edge_index_1)
      z2 = model(x_2, edge_index_2)
 
-     loss = model.loss(z1, z2, batch_size=0)
-     loss.backward()
+-    loss = model.loss(z1, z2, batch_size=0)
+-    loss.backward()
++    batch_size = int(config.get("batch_size", 0))
++    if batch_size > 0:
++        loss_value = model.loss_backward(z1, z2, batch_size)
++    else:
++        loss = model.loss(z1, z2, batch_size=0)
++        loss.backward()
++        loss_value = float(loss.item())
      optimizer.step()
--
++    return loss_value
++
++
++def get_dataset(path: str, name: str):
++    if name in {"Cora", "CiteSeer", "PubMed"}:
++        # PyG >= 2.x interprets the third positional argument as `split`; use
++        # a keyword so the upstream code remains compatible with current PyG.
++        return Planetoid(path, name, transform=T.NormalizeFeatures())
++    if name == "DBLP":
++        return CitationFull(path, "dblp", transform=T.NormalizeFeatures())
++    if name == "Amazon Computers":
++        return Amazon(path, "Computers", transform=T.NormalizeFeatures())
++    if name == "Amazon Photo":
++        return Amazon(path, "Photo", transform=T.NormalizeFeatures())
++    if name == "Coauthor CS":
++        return Coauthor(path, "CS", transform=T.NormalizeFeatures())
++    if name == "Coauthor Physics":
++        return Coauthor(path, "Physics", transform=T.NormalizeFeatures())
++    raise ValueError(f"unsupported dataset: {name!r}")
++
++
++def build_model(dataset, config: dict[str, Any], device: torch.device) -> tuple[Model, torch.optim.Optimizer]:
++    activation = {
++        "relu": F.relu,
++        "prelu": nn.PReLU(),
++        "rrelu": F.rrelu,
++    }[config["activation"]]
++    base_model = {"GCNConv": GCNConv}[config["base_model"]]
++    encoder = Encoder(
++        dataset.num_features,
++        config["num_hidden"],
++        activation,
++        base_model=base_model,
++        k=config["num_layers"],
++    ).to(device)
++    model = Model(
++        encoder,
++        config["num_hidden"],
++        config["num_proj_hidden"],
++        config["tau"],
++    ).to(device)
++    optimizer = torch.optim.Adam(
++        model.parameters(),
++        lr=config["learning_rate"],
++        weight_decay=config["weight_decay"],
++    )
++    return model, optimizer
+
 -    return loss.item()
--
--
+
++def load_json(path: Path) -> dict[str, Any]:
++    with path.open("r", encoding="utf-8") as handle:
++        return json.load(handle)
+
 -def test(model: Model, x, edge_index, y, final=False):
 -    model.eval()
 -    z = model(x, edge_index)
--
+
 -    label_classification(z, y, ratio=0.1)
--
--
++def write_json(path: Path, payload: dict[str, Any]) -> None:
++    path.parent.mkdir(parents=True, exist_ok=True)
++    with path.open("w", encoding="utf-8") as handle:
++        json.dump(payload, handle, indent=2, sort_keys=True)
++        handle.write("\n")
+
+
 -if __name__ == '__main__':
 -    parser = argparse.ArgumentParser()
 -    parser.add_argument('--dataset', type=str, default='DBLP')
 -    parser.add_argument('--gpu_id', type=int, default=0)
 -    parser.add_argument('--config', type=str, default='config.yaml')
 -    args = parser.parse_args()
--
++def build_parser() -> argparse.ArgumentParser:
++    parser = argparse.ArgumentParser(description="Reproduce GRACE/GCA bundles with 1:1:8 and 10 runs")
++    parser.add_argument("--dataset", required=True, help="dataset name or supported alias")
++    parser.add_argument("--gpu_id", type=int, default=0)
++    parser.add_argument("--config", default="config.yaml")
++    parser.add_argument("--data_root", default="~/datasets")
++    parser.add_argument("--runs", type=int, default=10)
++    parser.add_argument("--epochs", type=int)
++    parser.add_argument("--progress_every", type=int, default=50)
++    parser.add_argument("--output_dir", default="results")
++    parser.add_argument("--resume", action="store_true")
++    return parser
++
++
++def main() -> None:
++    args = build_parser().parse_args()
++    dataset_name = canonical_dataset_name(args.dataset)
++    if args.runs <= 0:
++        raise ValueError("--runs must be positive")
++    if args.progress_every <= 0:
++        raise ValueError("--progress_every must be positive")
++    if not torch.cuda.is_available():
++        raise RuntimeError("GRACE reproduction requires CUDA for the requested run")
++    if args.gpu_id not in range(torch.cuda.device_count()):
++        raise ValueError(f"--gpu_id must be in [0, {torch.cuda.device_count() - 1}]")
+
 -    assert args.gpu_id in range(0, 8)
--    torch.cuda.set_device(args.gpu_id)
--
+     torch.cuda.set_device(args.gpu_id)
++    device = torch.device("cuda", args.gpu_id)
++    config_path = Path(args.config)
++    if not config_path.is_absolute():
++        config_path = Path(__file__).resolve().parent / config_path
++    with config_path.open("r", encoding="utf-8") as handle:
++        all_config = yaml.load(handle, Loader=SafeLoader)
++    config = all_config[dataset_name]
++    epochs = int(args.epochs if args.epochs is not None else config["num_epochs"])
++    output_dir = Path(args.output_dir)
++    output_dir.mkdir(parents=True, exist_ok=True)
+
 -    config = yaml.load(open(args.config), Loader=SafeLoader)[args.dataset]
 -
 -    torch.manual_seed(config['seed'])
@@ -395,105 +699,13 @@ index b363491..3bd672a 100644
 -    encoder = Encoder(dataset.num_features, num_hidden, activation,
 -                      base_model=base_model, k=num_layers).to(device)
 -    model = Model(encoder, num_hidden, num_proj_hidden, tau).to(device)
-+    return float(loss.item())
-+
-+
-+def get_dataset(path: str, name: str):
-+    assert name in ["Cora", "CiteSeer", "PubMed", "DBLP"]
-+    dataset_name = "dblp" if name == "DBLP" else name
-+    dataset_cls = CitationFull if dataset_name == "dblp" else Planetoid
-+    # PyG >= 2.x interprets the third positional argument as `split`; use a
-+    # keyword so the upstream code remains compatible with current PyG.
-+    return dataset_cls(path, dataset_name, transform=T.NormalizeFeatures())
-+
-+
-+def build_model(dataset, config: dict[str, Any], device: torch.device) -> tuple[Model, torch.optim.Optimizer]:
-+    activation = {"relu": F.relu, "prelu": nn.PReLU()}[config["activation"]]
-+    base_model = {"GCNConv": GCNConv}[config["base_model"]]
-+    encoder = Encoder(
-+        dataset.num_features,
-+        config["num_hidden"],
-+        activation,
-+        base_model=base_model,
-+        k=config["num_layers"],
-+    ).to(device)
-+    model = Model(
-+        encoder,
-+        config["num_hidden"],
-+        config["num_proj_hidden"],
-+        config["tau"],
-+    ).to(device)
-     optimizer = torch.optim.Adam(
+-    optimizer = torch.optim.Adam(
 -        model.parameters(), lr=learning_rate, weight_decay=weight_decay)
-+        model.parameters(),
-+        lr=config["learning_rate"],
-+        weight_decay=config["weight_decay"],
-+    )
-+    return model, optimizer
-+
-+
-+def load_json(path: Path) -> dict[str, Any]:
-+    with path.open("r", encoding="utf-8") as handle:
-+        return json.load(handle)
-+
-+
-+def write_json(path: Path, payload: dict[str, Any]) -> None:
-+    path.parent.mkdir(parents=True, exist_ok=True)
-+    with path.open("w", encoding="utf-8") as handle:
-+        json.dump(payload, handle, indent=2, sort_keys=True)
-+        handle.write("\n")
-+
-+
-+def build_parser() -> argparse.ArgumentParser:
-+    parser = argparse.ArgumentParser(description="Reproduce GRACE on Cora/CiteSeer with 1:1:8 and 10 runs")
-+    parser.add_argument("--dataset", choices=["Cora", "CiteSeer"], required=True)
-+    parser.add_argument("--gpu_id", type=int, default=0)
-+    parser.add_argument("--config", default="config.yaml")
-+    parser.add_argument("--data_root", default="~/datasets")
-+    parser.add_argument("--runs", type=int, default=10)
-+    parser.add_argument("--epochs", type=int)
-+    parser.add_argument("--progress_every", type=int, default=50)
-+    parser.add_argument("--output_dir", default="results")
-+    parser.add_argument("--resume", action="store_true")
-+    return parser
-+
-+
-+def main() -> None:
-+    args = build_parser().parse_args()
-+    if args.runs <= 0:
-+        raise ValueError("--runs must be positive")
-+    if args.progress_every <= 0:
-+        raise ValueError("--progress_every must be positive")
-+    if not torch.cuda.is_available():
-+        raise RuntimeError("GRACE reproduction requires CUDA for the requested run")
-+    if args.gpu_id not in range(torch.cuda.device_count()):
-+        raise ValueError(f"--gpu_id must be in [0, {torch.cuda.device_count() - 1}]")
-
--    start = t()
--    prev = start
--    for epoch in range(1, num_epochs + 1):
--        loss = train(model, data.x, data.edge_index)
--
--        now = t()
--        print(f'(T) | Epoch={epoch:03d}, loss={loss:.4f}, '
--              f'this epoch {now - prev:.4f}, total {now - start:.4f}')
--        prev = now
--
--    print("=== Final ===")
--    test(model, data.x, data.edge_index, data.y, final=True)
-+    torch.cuda.set_device(args.gpu_id)
-+    device = torch.device("cuda", args.gpu_id)
-+    all_config = yaml.load(open(args.config, "r", encoding="utf-8"), Loader=SafeLoader)
-+    config = all_config[args.dataset]
-+    epochs = int(args.epochs if args.epochs is not None else config["num_epochs"])
-+    output_dir = Path(args.output_dir)
-+    output_dir.mkdir(parents=True, exist_ok=True)
-+
-+    dataset = get_dataset(osp.expanduser(args.data_root), args.dataset)
++    dataset = get_dataset(osp.expanduser(args.data_root), dataset_name)
 +    cpu_data = dataset[0]
 +    data = cpu_data.to(device)
 +    print(
-+        f"[setup] dataset={args.dataset} nodes={data.num_nodes} features={dataset.num_features} "
++        f"[setup] dataset={dataset_name} nodes={data.num_nodes} features={dataset.num_features} "
 +        f"classes={dataset.num_classes} edges={data.edge_index.size(1)} device={device} "
 +        f"upstream_commit={UPSTREAM_COMMIT}",
 +        flush=True,
@@ -505,7 +717,7 @@ index b363491..3bd672a 100644
 +        run_path = output_dir / f"run_{run_number:02d}.json"
 +        if args.resume and run_path.exists():
 +            existing = load_json(run_path)
-+            if existing.get("dataset") != args.dataset:
++            if existing.get("dataset") != dataset_name:
 +                raise RuntimeError(f"resume result has a different dataset: {run_path}")
 +            run_results.append(existing)
 +            print(f"[resume] run={run_number}/{args.runs} loaded={run_path}", flush=True)
@@ -535,7 +747,7 @@ index b363491..3bd672a 100644
 +            embedding = model(data.x, data.edge_index)
 +        evaluation = label_classification(embedding, data.y, split_seed, classifier_seed)
 +        row: dict[str, Any] = {
-+            "dataset": args.dataset,
++            "dataset": dataset_name,
 +            "run": run_number,
 +            "train_seed": train_seed,
 +            "split_seed": split_seed,
@@ -561,10 +773,14 @@ index b363491..3bd672a 100644
 +            f"C=2^{evaluation['selected_C_exponent']}",
 +            flush=True,
 +        )
-+
+
+-    start = t()
+-    prev = start
+-    for epoch in range(1, num_epochs + 1):
+-        loss = train(model, data.x, data.edge_index)
 +    summary = summarize(run_results)
 +    aggregate: dict[str, Any] = {
-+        "dataset": args.dataset,
++        "dataset": dataset_name,
 +        "runs_requested": args.runs,
 +        "runs_completed": len(run_results),
 +        "protocol": "official_grace_encoder_with_stratified_1_1_8_linear_evaluation",
@@ -575,6 +791,7 @@ index b363491..3bd672a 100644
 +            "repository": UPSTREAM_REPOSITORY,
 +            "commit": UPSTREAM_COMMIT,
 +        },
++        "gca_parameter_source": GCA_PARAMETER_SOURCE,
 +        "runs": [
 +            {
 +                "run": row["run"],
@@ -598,7 +815,13 @@ index b363491..3bd672a 100644
 +    write_json(output_dir / "aggregate.json", aggregate)
 +    print_statistics(summary)
 +    print(f"[done] aggregate={output_dir / 'aggregate.json'}", flush=True)
-+
-+
+
+-        now = t()
+-        print(f'(T) | Epoch={epoch:03d}, loss={loss:.4f}, '
+-              f'this epoch {now - prev:.4f}, total {now - start:.4f}')
+-        prev = now
+
+-    print("=== Final ===")
+-    test(model, data.x, data.edge_index, data.y, final=True)
 +if __name__ == "__main__":
 +    main()

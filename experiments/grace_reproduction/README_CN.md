@@ -13,6 +13,16 @@
 - 每个数据集独立运行 10 次。第 `i` 次（从 0 开始）的训练、划分、分类器种子分别为 `config.seed+i`、`config.seed+10000+i`、`config.seed+20000+i`。
 - 汇总报告 accuracy、micro-F1、macro-F1 的均值和总体标准差，百分比保留到 4 位小数。
 
+## GCA 数据集配置补全
+
+`GRACE/config.yaml` 已补齐 Amazon/Coauthor 四个数据集，参数取自 GCA 官方
+[`param/`](https://github.com/CRIPAC-DIG/GCA/tree/main/param) 的 uniform-drop
+配置：`Amazon Computers`、`Amazon Photo`、`Coauthor CS`、`Coauthor Physics`。
+同时支持 GCA 风格别名 `Amazon-Computers`、`Amazon-Photo`、`Coauthor-CS` 和
+`Coauthor-Phy`。GCA 参数文件没有 dataset-specific seed，因此新增配置记录
+GCA runner 默认 seed `39788`；`Coauthor Physics` 使用 `batch_size=1024`
+以匹配官方大图 loss 路径，其余数据集使用全量 InfoNCE。
+
 ## 已完成结果
 
 | 数据集 | test accuracy | test micro-F1 | test macro-F1 |
@@ -37,7 +47,15 @@ git -C ../GRACE apply experiments/grace_reproduction/upstream_grace_1_1_8.patch
 ./experiments/grace_reproduction/run_10.sh
 ```
 
-可通过 `GRACE_ROOT`、`DATA_ROOT`、`PYTHON_BIN` 和 `RESULT_ROOT` 覆盖默认路径；脚本带 `--resume`，中断后可继续已有 run。
+可通过 `GRACE_ROOT`、`DATA_ROOT`、`PYTHON_BIN` 和 `RESULT_ROOT` 覆盖默认路径；脚本带 `--resume`，中断后可继续已有 run。补齐后的数据集可直接单独运行，例如：
+
+```bash
+../.venv-g02/bin/python ../GRACE/train.py \
+  --dataset Amazon-Computers \
+  --config ../GRACE/config.yaml \
+  --data_root /root/autodl-tmp/G-02-baseline-data/pyg \
+  --runs 10
+```
 
 ## 环境和数据
 
