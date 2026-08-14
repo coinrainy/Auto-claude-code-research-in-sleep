@@ -25,6 +25,9 @@ GCA runner 默认 seed `39788`；`Coauthor Physics` 使用 `batch_size=1024`
 
 ## 已完成结果
 
+Amazon Computers 和 Amazon Photo 的 1:1:8、10 次 GRACE 复现及论文对照见
+[amazon_grace_comparison.md](amazon_grace_comparison.md)。
+
 | 数据集 | test accuracy | test micro-F1 | test macro-F1 |
 |---|---:|---:|---:|
 | Cora | 82.8235% ± 0.8653% | 82.8235% ± 0.8653% | 81.3026% ± 0.9512% |

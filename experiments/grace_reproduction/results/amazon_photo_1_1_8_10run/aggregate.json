@@ -1,0 +1,306 @@
+{
+  "config": {
+    "activation": "relu",
+    "base_model": "GCNConv",
+    "batch_size": 0,
+    "drop_edge_rate_1": 0.3,
+    "drop_edge_rate_2": 0.5,
+    "drop_feature_rate_1": 0.1,
+    "drop_feature_rate_2": 0.1,
+    "learning_rate": 0.1,
+    "num_epochs": 2000,
+    "num_hidden": 256,
+    "num_layers": 2,
+    "num_proj_hidden": 64,
+    "seed": 39788,
+    "tau": 0.3,
+    "weight_decay": 1e-05
+  },
+  "data_root": "/root/autodl-tmp/G-02-baseline-data/pyg",
+  "dataset": "Amazon Photo",
+  "epochs": 2000,
+  "gca_parameter_source": "https://github.com/CRIPAC-DIG/GCA/tree/main/param",
+  "protocol": "official_grace_encoder_with_stratified_1_1_8_linear_evaluation",
+  "runs": [
+    {
+      "classifier_seed": 59788,
+      "final_loss": 6.951028347015381,
+      "run": 1,
+      "selected_C_exponent": 7,
+      "sizes": {
+        "test": 6120,
+        "total": 7650,
+        "train": 765,
+        "validation": 765
+      },
+      "split_seed": 49788,
+      "split_sha256": "97e19bee1d42babe6b109286f7bfc3a717645c0422493bff1bbf12047ca7d487",
+      "test": {
+        "accuracy": 0.9227124183006536,
+        "macro_f1": 0.9105326029858974,
+        "micro_f1": 0.9227124183006536
+      },
+      "test_sha256": "f9b8f45ff3be56f843a983891369f907faf46480207da0fd36979209ca512104",
+      "train_seed": 39788,
+      "train_sha256": "21e8f3823f582054a629c0322f7ad7df330706335e74389c915c87df23b204a1",
+      "validation_sha256": "c844c5c49cc3b3e9531b3a6cb847fdc06ce20866e26dcbc3b7a711a2b156d61f"
+    },
+    {
+      "classifier_seed": 59789,
+      "final_loss": 7.238609790802002,
+      "run": 2,
+      "selected_C_exponent": 7,
+      "sizes": {
+        "test": 6120,
+        "total": 7650,
+        "train": 765,
+        "validation": 765
+      },
+      "split_seed": 49789,
+      "split_sha256": "7bd0e7f6119e18f60780e7d5330e7dd16e4a4cfc9d5f82049a6d916c04b5e747",
+      "test": {
+        "accuracy": 0.8537581699346405,
+        "macro_f1": 0.8133879178874778,
+        "micro_f1": 0.8537581699346405
+      },
+      "test_sha256": "5b00a0717039ef8186a21b7dab5883430352c84e5486d86149bbed447fc75191",
+      "train_seed": 39789,
+      "train_sha256": "6b25800b1a3c0fb5f8759601b8bfe4a727fc0f0d98670af4cafac64134020534",
+      "validation_sha256": "87b2317866af938f38bced3f85a087653e6de3c58a6084df99fc71bdec1f62d4"
+    },
+    {
+      "classifier_seed": 59790,
+      "final_loss": 6.881709098815918,
+      "run": 3,
+      "selected_C_exponent": 1,
+      "sizes": {
+        "test": 6120,
+        "total": 7650,
+        "train": 765,
+        "validation": 765
+      },
+      "split_seed": 49790,
+      "split_sha256": "a9a01416a0adc9e558e80da4c33779a25c4f28fc20a3fd142462950341bfd611",
+      "test": {
+        "accuracy": 0.9155228758169934,
+        "macro_f1": 0.8932627544632614,
+        "micro_f1": 0.9155228758169934
+      },
+      "test_sha256": "a30c994c1e7864063edf9f17c88dedb6f206d95a164267cb1dcde239be87c2ed",
+      "train_seed": 39790,
+      "train_sha256": "69108d907492ff6dce3f5b27c85723bbe8706fa511f3ebd456820e068c6066fa",
+      "validation_sha256": "1cf44aaa20aa3a8d2ea7b2a2f0f78f51ae8f3407871b262386e1eb93b80c2ec0"
+    },
+    {
+      "classifier_seed": 59791,
+      "final_loss": 6.865748405456543,
+      "run": 4,
+      "selected_C_exponent": 5,
+      "sizes": {
+        "test": 6120,
+        "total": 7650,
+        "train": 765,
+        "validation": 765
+      },
+      "split_seed": 49791,
+      "split_sha256": "44e0357cedf052e2a469a2be2dac56d199e47362b724ee0949d8b85733162215",
+      "test": {
+        "accuracy": 0.9199346405228758,
+        "macro_f1": 0.9058661115545549,
+        "micro_f1": 0.9199346405228758
+      },
+      "test_sha256": "55fde66926f4e9835425a3b574e35da444b7dc8b6e63aeacdffe6e6fa1d18468",
+      "train_seed": 39791,
+      "train_sha256": "5947c31bf147a0bf7690d81f2856dca5cea7b9748f420be0eeca928ee8ead1c4",
+      "validation_sha256": "939b9361943b05cde7cae1581bf0b36172283b74861bd5e837f8035cf0256b8d"
+    },
+    {
+      "classifier_seed": 59792,
+      "final_loss": 6.926778316497803,
+      "run": 5,
+      "selected_C_exponent": 6,
+      "sizes": {
+        "test": 6120,
+        "total": 7650,
+        "train": 765,
+        "validation": 765
+      },
+      "split_seed": 49792,
+      "split_sha256": "5ad2eaf40b9c662d4b9d3b9ed925a76b63b075ccc7dd2c8689f5f61b0c913794",
+      "test": {
+        "accuracy": 0.9222222222222223,
+        "macro_f1": 0.9058167604444018,
+        "micro_f1": 0.9222222222222223
+      },
+      "test_sha256": "5cb0be0de80357f544187247f991f7b8c96e3b8afe675008e3a6fedddfbd5038",
+      "train_seed": 39792,
+      "train_sha256": "3b1a62d65c8fdd38f6873348e64bd5167d24bbbaf9f29100cc26577aefc338c1",
+      "validation_sha256": "1eee32530e87457de0b42a986d919bbf69672771d6fd68b4fe6713d2b9038d3f"
+    },
+    {
+      "classifier_seed": 59793,
+      "final_loss": 6.947843551635742,
+      "run": 6,
+      "selected_C_exponent": 7,
+      "sizes": {
+        "test": 6120,
+        "total": 7650,
+        "train": 765,
+        "validation": 765
+      },
+      "split_seed": 49793,
+      "split_sha256": "006270347c5775638c64e513255ce7556f572e57dd94eed78186cf08ea084957",
+      "test": {
+        "accuracy": 0.9204248366013071,
+        "macro_f1": 0.9042409552615218,
+        "micro_f1": 0.9204248366013071
+      },
+      "test_sha256": "977e49887308ee5f00b2e3a99c8ea0c17bfa5fd1620c1834be8922df05ef36d4",
+      "train_seed": 39793,
+      "train_sha256": "1f6c347fbcabe8d8d6b8d86fb2431144ab4d0c875e309bdd71a93f13aab7000f",
+      "validation_sha256": "d0f79fcb4446b6f6b3cce93d9b252ffcb7631b3fc3ccea331c5e59c03a64a18a"
+    },
+    {
+      "classifier_seed": 59794,
+      "final_loss": 6.863804817199707,
+      "run": 7,
+      "selected_C_exponent": 5,
+      "sizes": {
+        "test": 6120,
+        "total": 7650,
+        "train": 765,
+        "validation": 765
+      },
+      "split_seed": 49794,
+      "split_sha256": "3ed0a9f5af702367ce2d9a9b71e40776205301739b964a122699f42f9324cb82",
+      "test": {
+        "accuracy": 0.9160130718954248,
+        "macro_f1": 0.8994871021117401,
+        "micro_f1": 0.9160130718954248
+      },
+      "test_sha256": "631050481590e6e494f8078a3575ad610630260c11fd08ed72d75d66d7017dce",
+      "train_seed": 39794,
+      "train_sha256": "08b9f5f53e84a882009886abcb52f92e3d64b2775c7ca5178ba93e722f1177b4",
+      "validation_sha256": "d5d621815d91aafcbc8c35de3a20f93db9b25fcb0fcb2637d127cfbdf75a634a"
+    },
+    {
+      "classifier_seed": 59795,
+      "final_loss": 6.918400764465332,
+      "run": 8,
+      "selected_C_exponent": 4,
+      "sizes": {
+        "test": 6120,
+        "total": 7650,
+        "train": 765,
+        "validation": 765
+      },
+      "split_seed": 49795,
+      "split_sha256": "061a4ddc41da63b0c2a36c9be5c0fae53e59256b9332730e4eca19704e6778b2",
+      "test": {
+        "accuracy": 0.9176470588235294,
+        "macro_f1": 0.8981982987558119,
+        "micro_f1": 0.9176470588235294
+      },
+      "test_sha256": "7e3a494fc00dd59bfc2fe5a09ff2e9e98a2e447009597c63c5f165a72f1be03c",
+      "train_seed": 39795,
+      "train_sha256": "e66eece0147f7e9004897ce8f9450842450e9dee44d758ecfd207dd78d3ee3ec",
+      "validation_sha256": "2ea975b8a879c1be815a7c33f71a1615df56936ec35500561261779858301b17"
+    },
+    {
+      "classifier_seed": 59796,
+      "final_loss": 6.920568943023682,
+      "run": 9,
+      "selected_C_exponent": 5,
+      "sizes": {
+        "test": 6120,
+        "total": 7650,
+        "train": 765,
+        "validation": 765
+      },
+      "split_seed": 49796,
+      "split_sha256": "1b7127688dbe3019aa2b260a0ea7207f62050f4256202bda8370855033559481",
+      "test": {
+        "accuracy": 0.9264705882352942,
+        "macro_f1": 0.908167903475155,
+        "micro_f1": 0.9264705882352942
+      },
+      "test_sha256": "3eba0b57f034ee667dee79fc85b6fd75ca213403189f1b6f9dbd6196b7ebf3fb",
+      "train_seed": 39796,
+      "train_sha256": "15476b0ea9c6d552e25b6110f3668425ec39cb88db7c3098550032bef086dad3",
+      "validation_sha256": "52969fdaf3ffe6f0cbfe0d9458642ddd9cb791f1cb75fa3568bd9a3f5b02c07d"
+    },
+    {
+      "classifier_seed": 59797,
+      "final_loss": 6.935215473175049,
+      "run": 10,
+      "selected_C_exponent": 8,
+      "sizes": {
+        "test": 6120,
+        "total": 7650,
+        "train": 765,
+        "validation": 765
+      },
+      "split_seed": 49797,
+      "split_sha256": "83306439df9b5ee045beb5aecf8a52b7c989d0a0b247c6f9c69be698e7490fc7",
+      "test": {
+        "accuracy": 0.9258169934640523,
+        "macro_f1": 0.9121313237394092,
+        "micro_f1": 0.9258169934640523
+      },
+      "test_sha256": "950efe498c5f2419bb834ffc1a3624843ab14d1753d556e1056c46030d4ed917",
+      "train_seed": 39797,
+      "train_sha256": "236596e057c89be33b145a30afa08a5d3623da930fa6406f10d762951c8add23",
+      "validation_sha256": "d7daa42f1e5806abdaac8eb9eeffe80a24d20e62b1066209298c4546636f183b"
+    }
+  ],
+  "runs_completed": 10,
+  "runs_requested": 10,
+  "summary": {
+    "runs": 10,
+    "test": {
+      "accuracy": {
+        "mean": 0.9140522875816993,
+        "mean_percent": 91.40522875816993,
+        "std": 0.02040561186745991,
+        "std_percent": 2.040561186745991
+      },
+      "macro_f1": {
+        "mean": 0.895109173067923,
+        "mean_percent": 89.51091730679231,
+        "std": 0.0277892094399733,
+        "std_percent": 2.77892094399733
+      },
+      "micro_f1": {
+        "mean": 0.9140522875816993,
+        "mean_percent": 91.40522875816993,
+        "std": 0.02040561186745991,
+        "std_percent": 2.040561186745991
+      }
+    },
+    "validation": {
+      "accuracy": {
+        "mean": 0.9179084967320262,
+        "mean_percent": 91.79084967320263,
+        "std": 0.0180354263330794,
+        "std_percent": 1.80354263330794
+      },
+      "macro_f1": {
+        "mean": 0.9004140176301612,
+        "mean_percent": 90.04140176301611,
+        "std": 0.026618720281595076,
+        "std_percent": 2.6618720281595074
+      },
+      "micro_f1": {
+        "mean": 0.9179084967320262,
+        "mean_percent": 91.79084967320263,
+        "std": 0.0180354263330794,
+        "std_percent": 1.80354263330794
+      }
+    }
+  },
+  "test_accessed": true,
+  "upstream": {
+    "commit": "b3b5ac3fcbaabbb50e8bd69a075b46cd82a50378",
+    "repository": "https://github.com/CRIPAC-DIG/GRACE.git"
+  }
+}
