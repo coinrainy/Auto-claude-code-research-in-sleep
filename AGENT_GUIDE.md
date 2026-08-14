@@ -2,7 +2,7 @@
 
 > **For AI agents reading this repo cold.** If you are a human, see [README.md](README.md) or [docs/ARIS_INTRO.html](https://wanshuiyin.github.io/Auto-claude-code-research-in-sleep/ARIS_INTRO.html).
 
-ARIS is a research harness: composable Markdown skills that orchestrate the ML research lifecycle through cross-model adversarial collaboration. Executor (Claude / Codex / Cursor / Antigravity / Copilot CLI) writes code & papers; reviewer (gpt-5.5 via Codex MCP, Claude / Gemini via `claude-review` / `gemini-review` MCP, or Copilot's evidence-gated native complementary reviewer for `/auto-review-loop`) critiques independently.
+ARIS is a research harness: composable Markdown skills that orchestrate the ML research lifecycle. In this checkout Codex is both executor and reviewer, pinned to `gpt-5.5` with `reasoning_effort: xhigh`.
 
 > **Source of Truth.** This file is a *routing index*, not a specification.
 > Behavior of a skill lives in `skills/<name>/SKILL.md`. System-wide
@@ -22,18 +22,14 @@ arbitrary OpenAI-compatible reviewer. The pinned pair is `gpt-5.5` with
 
 | Platform | Skill root | Notes |
 |----------|-----------|-------|
-| Claude Code / Cursor / Trae / Antigravity / Copilot CLI | `skills/<name>/SKILL.md` | Mainline skills; native `SKILL.md` invocation |
 | Codex CLI | `skills/skills-codex/<name>/SKILL.md` | Codex mirror; uses `spawn_agent` instead of `mcp__codex__codex` |
-| Codex + Claude-review | `skills/skills-codex-claude-review/` | Overlay on top of `skills-codex/` |
-| Codex + Gemini-review | `skills/skills-codex-gemini-review/` | Same pattern, Gemini reviewer |
 
 Codex base review is a fresh same-family `spawn_agent` review. It may drive and
 complete workflows but records `review_independence: same-family` and
-`acceptance_status: provisional`. Claude/Gemini overlays or deterministic
-verifiers may record accepted; never describe base Codex self-review as
-cross-model acceptance.
+`acceptance_status: provisional`. Only deterministic verifiers may record
+accepted; never describe base Codex self-review as cross-model acceptance.
 
-**Full catalog**: [`docs/SKILLS_CATALOG.md`](docs/SKILLS_CATALOG.md) — **82 skills**, grouped by role.
+**Full catalog**: [`docs/SKILLS_CATALOG.md`](docs/SKILLS_CATALOG.md) — **80 skills**, grouped by role.
 
 Invocation syntax is identical across hosts:
 ```
@@ -180,14 +176,14 @@ Advisory CI lint at `.github/workflows/lint-skills-helpers.yml` flags hardcoded 
 
 ## Cross-Model Protocol
 
-- **Executor** (Claude / Codex / Cursor / Antigravity / Copilot): writes code, runs experiments, drafts papers
-- **Reviewer** (gpt-5.5 via Codex MCP, default; or Claude / Gemini via `*-review` MCP overlays): critiques, scores, demands revisions
-- **Rule**: executor and reviewer **must** be different model families. Same-family review is a non-feature.
+- **Executor** (Codex CLI): writes code, runs experiments, drafts papers
+- **Reviewer** (fresh Codex agent at `gpt-5.5` + `xhigh`): critiques, scores, demands revisions
+- **Rule**: same-family review is explicitly provisional and cannot be described as cross-model acceptance.
 - **Reviewer independence**: pass file paths only, never summaries or interpretations
-- **Thread freshness**: every reviewer call uses `mcp__codex__codex` (or equivalent), **never** `codex-reply` — narrative accumulation inflates scores
+- **Thread freshness**: every reviewer call uses a fresh `spawn_agent` thread, then `send_input` only for declared follow-ups
 - **Experiment integrity**: executor must NOT judge its own eval code — reviewer audits directly per [`shared-references/experiment-integrity.md`](skills/shared-references/experiment-integrity.md)
 
-The external Codex default for this checkout is `gpt-5.5` with `xhigh` reasoning for every reviewer call. There is no automatic model or backend fallback; unsupported access is `REVIEW_UNAVAILABLE`. The alternative Copilot, Oracle, Claude, Gemini, and legacy-model routes remain upstream documentation only and are disabled by the G-03 local execution override above.
+The Codex default for this checkout is `gpt-5.5` with `xhigh` reasoning for every reviewer call. There is no automatic model or backend fallback; unsupported access is `REVIEW_UNAVAILABLE`.
 
 ## Shared References
 

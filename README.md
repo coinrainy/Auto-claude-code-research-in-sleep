@@ -8,7 +8,7 @@
 
 [![Technical Report](https://img.shields.io/badge/Technical%20Report-arXiv%3A2605.03042-b31b1b?style=flat&logo=arxiv)](https://huggingface.co/papers/2605.03042) · [![ARIS Intro (HTML)](https://img.shields.io/badge/ARIS%20Intro-HTML%20%C2%B7%20by%20%2Frender--html-1a4a8c?style=flat&logo=html5&logoColor=white)](https://wanshuiyin.github.io/Auto-claude-code-research-in-sleep/ARIS_INTRO.html) · [![ARIS Intro Slides — VALSE 2026](https://img.shields.io/badge/Slides%20%40%20VALSE%202026-PDF%20%C2%B7%20by%20%2Fpaper--talk-EC1C24?style=flat&logo=adobeacrobatreader&logoColor=white)](docs/aris_intro_slides.pdf) · [![AI Agents](https://img.shields.io/badge/AI%20Agents-AGENT__GUIDE.md-4B2E83?style=flat&logo=readthedocs&logoColor=white)](AGENT_GUIDE.md) · [![Featured on PaperWeekly](https://img.shields.io/badge/Featured%20on-PaperWeekly-red?style=flat)](https://mp.weixin.qq.com/s/tDniVryVGjDkkkWl-5sTkQ) · [![Featured in awesome-agent-skills](https://img.shields.io/badge/Featured%20in-awesome--agent--skills-blue?style=flat&logo=github)](https://github.com/VoltAgent/awesome-agent-skills) · [![AI Digital Crew - Project of the Day](https://img.shields.io/badge/AI%20Digital%20Crew-Project%20of%20the%20Day%20(2026.03.14)-orange?style=flat)](https://aidigitalcrew.com) · [![GitHub stars](https://img.shields.io/github/stars/wanshuiyin/Auto-claude-code-research-in-sleep?style=flat&logo=github&logoColor=white&color=gold&label=Stars)](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/stargazers) · [💬 Join Community](#community) · [![Cite](https://img.shields.io/badge/📖_Cite_Us-BibTeX-green?style=flat)](#citation)
 
-💡 *Use ARIS as a skill-based workflow in [Claude Code](https://docs.anthropic.com/en/docs/claude-code) / [Codex CLI](skills/skills-codex/) / [Cursor](docs/CURSOR_ADAPTATION.md) / [Trae](docs/TRAE_ARIS_RUNBOOK_EN.md) / [Antigravity](docs/ANTIGRAVITY_ADAPTATION.md) / [GitHub Copilot CLI](docs/COPILOT_CLI_ADAPTATION.md) / [OpenClaw](docs/OPENCLAW_ADAPTATION.md), or get the full experience with the standalone **[ARIS-Code](docs/ARIS-Code-README_EN.md)** CLI — enjoy any way you like!*
+💡 *This G-03 checkout uses [Codex CLI](skills/skills-codex/) as both executor and reviewer, pinned to **`gpt-5.5` + `xhigh`**. Start with [`tools/codex-gpt55-xhigh.sh`](tools/codex-gpt55-xhigh.sh) and the project-local Codex installer.*
 
 🌱 *ARIS is a methodology, not a platform. What matters is the research workflow — take it wherever you go.*
 
@@ -409,35 +409,27 @@ Two outputs: `PASTE_READY.txt` (exact char count, paste to venue) + `REBUTTAL_DR
 ## 3. 🚀 Quick Start
 
 ```bash
-# 1. Install skills — project-local symlinks (recommended)
+# 1. Install Codex skills — project-local symlinks (recommended)
 git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git
-bash Auto-claude-code-research-in-sleep/tools/install_aris.sh ~/your-project   # symlinks ARIS skills into <project>/.claude/skills/
-# (prefer a global install instead? cp -r Auto-claude-code-research-in-sleep/skills/* ~/.claude/skills/)
-# (don't need all 82? --list-groups / --groups X,Y / --skills X — see "Selective install" below)
+bash Auto-claude-code-research-in-sleep/tools/install_aris_codex.sh ~/your-project
+# (don't need all 80? --list-groups / --groups X,Y / --skills X — see "Selective install" below)
 
 # 1b. Update later (when upstream changes)
 cd Auto-claude-code-research-in-sleep && git pull
-bash tools/smart_update.sh --apply   # updates safe skills, flags your personal customizations
+bash tools/install_aris_codex.sh ~/your-project --reconcile
 # (NEW upstream skills need confirmation — --add-new to accept all non-interactively)
-
-# Optional Codex mirror managed project install
-bash tools/install_aris_codex.sh ~/your-codex-project
-
-# Managed Codex project update
-cd Auto-claude-code-research-in-sleep && git pull
-bash tools/install_aris_codex.sh ~/your-codex-project --reconcile
 
 # Copied Codex installs only (not for projects installed by install_aris_codex.sh)
 bash tools/smart_update_codex.sh --local ~/.codex/skills
 bash tools/smart_update_codex.sh --local ~/.codex/skills --apply
 
-# 2. Set up Codex MCP (for review skills)
+# 2. Start the pinned Codex runtime
 npm install -g @openai/codex
-codex setup                    # set model to gpt-5.6-sol when prompted
-claude mcp add codex -s user -- codex mcp-server
+codex login
+./tools/codex-gpt55-xhigh.sh
 
-# 3. Use in Claude Code
-claude
+# 3. Use in Codex CLI
+codex
 > /idea-discovery "your research direction"  # Workflow 1 — be specific! not "NLP" but "factorized gap in discrete diffusion LMs"
 > /experiment-bridge                         # Workflow 1.5 — have a plan? implement + deploy + collect results
 > /auto-review-loop "your paper topic or scope"  # Workflow 2: review → fix → re-review overnight
@@ -450,7 +442,7 @@ claude
 > /meta-optimize                                # Meta: analyze usage logs → propose skill improvements
 ```
 
-> Don't need all 82 skills? See [Selective install](#install-skills) below for group/skill-level picks.
+> Don't need all 80 skills? See [Selective install](#install-skills) below for group/skill-level picks.
 
 <details>
 <summary><b>📚 Research Wiki (optional)</b> — one-line init for persistent memory across sessions; see <a href="#-research-wiki--persistent-research-memory">full Research Wiki section</a></summary>
@@ -598,14 +590,14 @@ See [full setup guide](#setup) for details and [alternative model combinations](
 
 ## 4. ✨ Features
 
-ARIS chains **82 composable skills** across the whole research lifecycle — literature & novelty → idea discovery → GPU experiments → autonomous review loop → paper writing → peer review — with **cross-model adversarial review** (Claude executes · GPT-5.6-Sol xhigh reviews · optional **GPT-5.5 Pro** via Oracle), anti-hallucination DBLP/CrossRef citations, a persistent **Research Wiki**, flexible model backends, human-in-the-loop checkpoints, and optional Feishu / Zotero / Obsidian / GPU integrations.
+ARIS chains **80 composable skills** across the whole research lifecycle — literature & novelty → idea discovery → GPU experiments → autonomous review loop → paper writing → peer review — with the local **Codex `gpt-5.5` + `xhigh`** reviewer contract, anti-hallucination DBLP/CrossRef citations, a persistent **Research Wiki**, human-in-the-loop checkpoints, and optional Zotero / Obsidian / GPU integrations.
 
 🔥 *And it scales to any agent's **ultracode-style deep mode** — the breadth/firepower pass adapts to the runtime (Claude Code ultracode + workflows on Opus 4.8, Codex `spawn_agent`, or plain sequential), feeding three roles: **breadth · cross-model review → accuracy · research wiki → memory**. However a loop is driven, it reports to the same cross-model jury + research wiki — **it can drive, never acquit**.*
 
 <details>
 <summary><b>Full feature list</b></summary>
 
-- 📊 **82 composable skills** — mix and match, or chain into full pipelines (`/idea-discovery`, `/auto-review-loop`, `/paper-writing`, `/research-pipeline`). See [full catalog →](docs/SKILLS_CATALOG.md)
+- 📊 **80 composable skills** — mix and match, or chain into full pipelines (`/idea-discovery`, `/auto-review-loop`, `/paper-writing`, `/research-pipeline`). See [full catalog →](docs/SKILLS_CATALOG.md)
 - 🔍 **Literature & novelty** — multi-source paper search (**[Zotero](docs/integrations/ZOTERO.md)** + **[Obsidian](docs/integrations/OBSIDIAN.md)** + **local PDFs** + arXiv/Scholar) + cross-model novelty verification
 - 💡 **Idea discovery** — literature survey → brainstorm 8-12 ideas → novelty check → GPU pilot experiments → ranked report
 - 🔄 **Auto review loop** — 4-round autonomous review, 5/10 → 7.5/10 overnight with 20+ GPU experiments
@@ -638,7 +630,7 @@ ARIS chains **82 composable skills** across the whole research lifecycle — lit
 <a id="skills-catalog"></a>
 <a id="-skills-catalog"></a>
 
-ARIS ships **82+ skills** across literature, ideation, experiments, audit, writing, talks, patents, and meta-utilities — the full catalog (role / category / requirements per skill) lives in **[`docs/SKILLS_CATALOG.md`](docs/SKILLS_CATALOG.md)** to keep this README scannable.
+ARIS ships **80+ skills** across literature, ideation, experiments, audit, writing, talks, patents, and meta-utilities — the full catalog (role / category / requirements per skill) lives in **[`docs/SKILLS_CATALOG.md`](docs/SKILLS_CATALOG.md)** to keep this README scannable.
 
 <details>
 <summary><b>Start here</b> — common entry points (use case → skill)</summary>
@@ -659,7 +651,7 @@ ARIS ships **82+ skills** across literature, ideation, experiments, audit, writi
 
 </details>
 
-→ **[Browse all 82 skills by category in the full catalog →](docs/SKILLS_CATALOG.md)**
+→ **[Browse all 80 skills by category in the full catalog →](docs/SKILLS_CATALOG.md)**
 
 ---
 
@@ -1504,9 +1496,7 @@ Add `— reviewer: oracle-pro` to any reviewer-aware skill (`/proof-checker`, `/
 
 ### 10.2 Install Skills
 
-> 💡 **Recommended: project-local flat symlink install** (since 2026-04-20). Each ARIS skill is symlinked individually into `.claude/skills/<skill-name>`, so Claude Code's slash-command discovery picks them up. A manifest at `.aris/installed-skills.txt` tracks what ARIS installed — uninstall and reconcile only ever touch managed entries, never your own skills.
->
-> 🤖 **Codex mirror route:** keep Claude on `install_aris.sh` / `smart_update.sh`. For Codex-native project installs, use `install_aris_codex.sh`; for copied Codex installs, use `smart_update_codex.sh`.
+> 💡 **Recommended: project-local Codex flat symlink install.** Each Codex skill is symlinked individually into `.agents/skills/<skill-name>`. The manifest `.aris/installed-skills-codex.txt` tracks managed entries; uninstall and reconcile only touch those entries.
 
 ```bash
 # 1. Clone ARIS once to a stable location
@@ -1514,78 +1504,53 @@ git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git ~
 
 # 2. For each project that uses ARIS, attach via symlinks:
 cd ~/your-paper-project
-bash ~/aris_repo/tools/install_aris.sh
-# → creates one symlink per skill: .claude/skills/<skill> → ~/aris_repo/skills/<skill>
-# → writes manifest .aris/installed-skills.txt (tracks every entry ARIS installed)
-# → updates managed CLAUDE.md ARIS block (best-effort, compare-and-swap)
+bash ~/aris_repo/tools/install_aris_codex.sh .
+# → creates one symlink per skill: .agents/skills/<skill> → ~/aris_repo/skills/skills-codex/<skill>
+# → writes manifest .aris/installed-skills-codex.txt
+# → updates the managed AGENTS.md Codex block
 # → re-runnable: rerun anytime to reconcile new/removed upstream skills
 
 # 3. To update existing skills' content for ALL attached projects:
 cd ~/aris_repo && git pull   # symlinks resolve to live upstream — content updates automatically
 
 # 3a. To pick up newly added or removed upstream skills, rerun the installer:
-bash ~/aris_repo/tools/install_aris.sh ~/your-paper-project   # adds new symlinks, removes broken ones
+bash ~/aris_repo/tools/install_aris_codex.sh ~/your-paper-project --reconcile
 
 # Install only what you need (#366 selective install; a bare TTY run opens a checkbox picker):
-bash ~/aris_repo/tools/install_aris.sh --list-groups                  # show the 10-group catalog
-bash ~/aris_repo/tools/install_aris.sh --groups paper-core,lit-search # install by group
-bash ~/aris_repo/tools/install_aris.sh --skills paper-writing         # by skill; hard pipeline deps auto-included
-bash ~/aris_repo/tools/install_aris.sh --exclude patent-pipeline      # opt out (declined; never re-asked on update)
+bash ~/aris_repo/tools/install_aris_codex.sh . --list-groups                  # show the group catalog
+bash ~/aris_repo/tools/install_aris_codex.sh . --groups paper-core,lit-search # install by group
+bash ~/aris_repo/tools/install_aris_codex.sh . --skills paper-writing         # by skill; hard pipeline deps auto-included
+bash ~/aris_repo/tools/install_aris_codex.sh . --exclude patent-pipeline      # opt out (declined; never re-asked on update)
 # On update, NEW upstream skills need per-skill confirmation; --add-new accepts all / --skip-new skips all
 
 # Other useful flags:
-bash ~/aris_repo/tools/install_aris.sh --dry-run        # show plan, no changes
-bash ~/aris_repo/tools/install_aris.sh --uninstall      # remove only managed symlinks (per manifest)
-bash ~/aris_repo/tools/install_aris.sh --from-old       # migrate from old nested .claude/skills/aris/
-
-# Windows (PowerShell, no WSL required; creates flat per-skill junctions):
-.\tools\install_aris.ps1 C:\path\to\your-paper-project -Platform claude
-.\tools\install_aris.ps1 C:\path\to\your-codex-project -Platform codex
+bash ~/aris_repo/tools/install_aris_codex.sh . --dry-run        # show plan, no changes
+bash ~/aris_repo/tools/install_aris_codex.sh . --uninstall      # remove only managed symlinks (per manifest)
 ```
 
-**Why "git pull" alone isn't enough for new/removed skills:** the flat layout uses one symlink per skill, so upstream additions/deletions don't propagate until the installer is re-run. The trade-off bought us Claude Code's automatic slash-command discovery (which only scans one directory level deep).
+**Why `git pull` alone isn't enough for new/removed skills:** the flat layout uses one symlink per skill, so upstream additions/deletions don't propagate until `install_aris_codex.sh --reconcile` is re-run. The trade-off gives Codex CLI a clean project-local skill namespace.
 
 <details>
-<summary><b>Migrating from the old nested install (pre-2026-04-20)</b></summary>
+<summary><b>Legacy installs</b></summary>
 
-If you previously installed via `install_aris.sh` (which created `.claude/skills/aris/` as a single nested symlink) or via `smart_update.sh --target-subdir .claude/skills/aris`, your slash commands probably weren't being auto-discovered by Claude Code. Migrate to the flat layout:
-
-```bash
-# Symlink-style legacy install:
-bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old
-
-# Copy-style legacy install (with possible local edits — chose strategy explicitly):
-bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old --migrate-copy keep-user
-#   → keeps your nested .claude/skills/aris/ copy intact alongside the new flat install
-bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old --migrate-copy prefer-upstream
-#   → archives nested copy to .aris/legacy-copy-backup-<timestamp>/, then flattens
-```
+This G-03 checkout intentionally omits the legacy Claude/Windows installers.
+If an older project still contains `.claude/skills/` entries, remove or archive
+those entries manually, then run `install_aris_codex.sh --reconcile`.
 
 </details>
 
 <details>
-<summary><b>Alternative installs (advanced)</b></summary>
+<summary><b>Copied Codex installs</b></summary>
 
-**Project-local copy (no symlinks, useful for per-project skill edits):**
 ```bash
-mkdir -p ~/your-project/.claude/skills
-bash ~/aris_repo/tools/smart_update.sh --project ~/your-project --apply
-# Default --target-subdir is .claude/skills (flat), which is what Claude Code expects.
-# (The old --target-subdir .claude/skills/aris is now deprecated — see migration block above.)
+mkdir -p ~/.codex/skills
+cp -a ~/aris_repo/skills/skills-codex/. ~/.codex/skills/
+bash ~/aris_repo/tools/smart_update_codex.sh --local ~/.codex/skills --apply
 ```
-
-**Global install (one copy in your home dir, available to every project):**
-```bash
-mkdir -p ~/.claude/skills
-cp -r ~/aris_repo/skills/* ~/.claude/skills/
-# Update with: bash tools/smart_update.sh --apply
-```
-
-> Global install increases the risk of skill name collisions with other globally-installed packs. Use only if you don't mix ARIS with Superpowers / OpenHands / etc. — otherwise prefer the project-local install above.
 
 </details>
 
-> 💡 **New Claude Code versions** may not auto-create `~/.claude/skills/`. If using global install, create it first: `mkdir -p ~/.claude/skills/`. The symlink installer handles directory creation automatically.
+> 💡 For a copied Codex install, create `~/.codex/skills/` first. The project-local installer handles `.agents/skills/` automatically.
 
 <a id="optional-codex-plugin-for-code-review"></a>
 
@@ -1622,15 +1587,10 @@ All plugin features are **optional** — if not installed, ARIS falls back to Cl
 cd Auto-claude-code-research-in-sleep
 git pull
 
-# 🧠 Smart update (recommended) — analyzes what's safe to update
-bash tools/smart_update.sh          # dry-run: shows what would change
-bash tools/smart_update.sh --apply  # apply: updates safe ones; NEW upstream skills prompt
-                                     # one-by-one on a TTY, or use --add-new / --skip-new
-
-# Manual options (if you prefer):
-# cp -r skills/* ~/.claude/skills/       # Option A: overwrite all
-# cp -rn skills/* ~/.claude/skills/      # Option B: only add new, keep yours
-# cp -r skills/experiment-bridge ~/.claude/skills/  # Option C: specific skill
+# 🧠 Codex update (managed projects reconcile symlinks; copied installs use updater)
+bash tools/install_aris_codex.sh ~/your-project --reconcile
+bash tools/smart_update_codex.sh --local ~/.codex/skills          # dry-run
+bash tools/smart_update_codex.sh --local ~/.codex/skills --apply
 ```
 
 > 💡 **Smart update** compares your local skills with upstream, detects personal customizations (server paths, API keys, etc.), and only updates skills that are safe to replace. Skills with your personal info are flagged for manual review.

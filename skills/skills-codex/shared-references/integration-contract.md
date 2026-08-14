@@ -221,11 +221,9 @@ fi
 Every helper invoked from any SKILL.md (single-skill or shared
 across skills) is classified below so that downstream SKILLs do
 not have to guess. Pure developer utilities that are never invoked
-from a SKILL.md — installers (`install_aris.sh`,
-`install_aris_codex.sh`), update scripts (`smart_update.sh`,
-`smart_update_codex.sh`), manual setup (`overleaf_setup.sh`),
-generators (`convert_skills_to_llm_chat.py`,
-`generate_codex_claude_review_overrides.py`), the `meta_opt/` hook
+from a SKILL.md — installers (`install_aris_codex.sh`),
+update scripts (`smart_update_codex.sh`), manual setup
+(`overleaf_setup.sh`), the `meta_opt/` hook
 scripts, and `watchdog.py` — are out of scope. Extend the
 taxonomy here first if a future helper does not fit.
 

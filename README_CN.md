@@ -8,7 +8,7 @@
 
 [![技术报告](https://img.shields.io/badge/技术报告-arXiv%3A2605.03042-b31b1b?style=flat&logo=arxiv)](https://huggingface.co/papers/2605.03042) · [![ARIS 介绍 (HTML)](https://img.shields.io/badge/ARIS%20介绍-HTML%20%C2%B7%20由%20%2Frender--html%20生成-1a4a8c?style=flat&logo=html5&logoColor=white)](https://wanshuiyin.github.io/Auto-claude-code-research-in-sleep/ARIS_INTRO.html) · [![ARIS 介绍幻灯 — VALSE 2026](https://img.shields.io/badge/VALSE%202026%20幻灯-PDF%20%C2%B7%20由%20%2Fpaper--talk%20生成-EC1C24?style=flat&logo=adobeacrobatreader&logoColor=white)](docs/aris_intro_slides.pdf) · [![AI Agents 指南](https://img.shields.io/badge/AI%20Agents-AGENT__GUIDE.md-4B2E83?style=flat&logo=readthedocs&logoColor=white)](AGENT_GUIDE.md) · [![PaperWeekly 收录](https://img.shields.io/badge/PaperWeekly-收录-red?style=flat)](https://mp.weixin.qq.com/s/tDniVryVGjDkkkWl-5sTkQ) · [![Featured in awesome-agent-skills](https://img.shields.io/badge/Featured%20in-awesome--agent--skills-blue?style=flat&logo=github)](https://github.com/VoltAgent/awesome-agent-skills) · [![AI Digital Crew - Project of the Day](https://img.shields.io/badge/AI%20Digital%20Crew-Project%20of%20the%20Day%20(2026.03.14)-orange?style=flat)](https://aidigitalcrew.com) · [![GitHub 星标](https://img.shields.io/github/stars/wanshuiyin/Auto-claude-code-research-in-sleep?style=flat&logo=github&logoColor=white&color=gold&label=Stars)](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/stargazers) · [💬 加入交流群](#community) · [![引用](https://img.shields.io/badge/📖_引用-BibTeX-green?style=flat)](#citation)
 
-💡 *在 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) / [Codex CLI](skills/skills-codex/) / [Cursor](docs/CURSOR_ADAPTATION.md) / [Trae](docs/TRAE_ARIS_RUNBOOK_CN.md) / [Antigravity](docs/ANTIGRAVITY_ADAPTATION_CN.md) / [GitHub Copilot CLI](docs/COPILOT_CLI_ADAPTATION.md) / [OpenClaw](docs/OPENCLAW_ADAPTATION.md) 里以 skill-based workflow 用 ARIS，或用独立的 **[ARIS-Code](docs/ARIS-Code-README_CN.md)** CLI 完整版体验——任你选！*
+💡 *本 G-03 checkout 使用 [Codex CLI](skills/skills-codex/) 同时作为执行者和审稿者，固定为 **`gpt-5.5` + `xhigh`**。请从 [`tools/codex-gpt55-xhigh.sh`](tools/codex-gpt55-xhigh.sh) 和项目级 Codex 安装脚本开始。*
 
 🌱 *ARIS 是方法论，不是平台。重要的是科研工作流——带着它去任何地方。*
 
@@ -371,30 +371,26 @@ ARIS 读论文 → 找弱点 → 克隆代码 → 针对*那些*弱点用*那套
 ## 3. 🚀 快速开始
 
 ```bash
-# 1. 安装 skills —— 项目级 symlink（推荐）
+# 1. 安装 Codex skills —— 项目级 symlink（推荐）
 git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git
-bash Auto-claude-code-research-in-sleep/tools/install_aris.sh ~/your-project   # 把 ARIS skill symlink 进 <project>/.claude/skills/
-# （想全局安装？cp -r Auto-claude-code-research-in-sleep/skills/* ~/.claude/skills/）
-# （不需要全部 82 个？--list-groups / --groups X,Y / --skills X —— 见下方"选择性安装"）
+bash Auto-claude-code-research-in-sleep/tools/install_aris_codex.sh ~/your-project
+# （不需要全部 80 个？--list-groups / --groups X,Y / --skills X —— 见下方"选择性安装"）
 
-# 可选：Codex mirror 项目级受管安装
-bash Auto-claude-code-research-in-sleep/tools/install_aris_codex.sh ~/your-codex-project
-
-# Codex 受管项目更新
+# 更新项目级 Codex 安装
 cd Auto-claude-code-research-in-sleep && git pull
-bash Auto-claude-code-research-in-sleep/tools/install_aris_codex.sh ~/your-codex-project --reconcile
+bash Auto-claude-code-research-in-sleep/tools/install_aris_codex.sh ~/your-project --reconcile
 
 # 仅用于 Codex copy install（不要用于 install_aris_codex.sh 管理的项目）
 bash Auto-claude-code-research-in-sleep/tools/smart_update_codex.sh --local ~/.codex/skills
 bash Auto-claude-code-research-in-sleep/tools/smart_update_codex.sh --local ~/.codex/skills --apply
 
-# 2. 配置 Codex MCP（review 类 skill 需要）
+# 2. 启动固定配置的 Codex runtime
 npm install -g @openai/codex
-codex setup                    # 提示选模型时选 gpt-5.6-sol
-claude mcp add codex -s user -- codex mcp-server
+codex login
+./tools/codex-gpt55-xhigh.sh
 
-# 3. 在 Claude Code 中使用
-claude
+# 3. 在 Codex CLI 中使用
+codex
 > /idea-discovery "你的研究方向"              # 工作流 1 — 方向要具体！不要 "NLP"，要 "离散扩散语言模型的 factorized gap"
 > /experiment-bridge                         # 工作流 1.5 — 有计划了？实现 + 部署 + 收结果
 > /auto-review-loop "你的论文主题或范围"         # 工作流 2：审稿 → 修复 → 再审，一夜完成
@@ -407,7 +403,7 @@ claude
 > /meta-optimize                               # 元优化：分析使用记录 → 提出技能改进方案
 ```
 
-> 不需要全部 82 个 skill？见下方[选择性安装](#install-skills)按组/按 skill 挑选。
+> 不需要全部 80 个 skill？见下方[选择性安装](#install-skills)按组/按 skill 挑选。
 
 <details>
 <summary><b>📚 Research Wiki（可选）</b> —— 一行 init 启用跨 session 持久记忆；完整说明见 <a href="#-research-wiki--persistent-research-memory">§ Research Wiki</a></summary>
@@ -549,14 +545,14 @@ Codex 基础镜像默认由新的 Codex `spawn_agent` 自审：流程可以继�
 
 ## 4. ✨ 功能亮点
 
-ARIS 用 **82 个可组合 skill** 覆盖科研全生命周期——文献查新 → idea 发现 → GPU 实验 → 自动 review 循环 → 论文写作 → peer review——配合**跨模型对抗审**（Claude 执行 · GPT-5.6-Sol xhigh 审 · 可选 **GPT-5.5 Pro** via Oracle）、DBLP/CrossRef 反幻觉引用、持久化 **Research Wiki**、灵活模型后端、human-in-the-loop 检查点，以及可选的飞书 / Zotero / Obsidian / GPU 集成。
+ARIS 用 **80 个可组合 skill** 覆盖科研全生命周期——文献查新 → idea 发现 → GPU 实验 → 自动 review 循环 → 论文写作 → peer review——本 checkout 固定使用 **Codex `gpt-5.5` + `xhigh`** 审稿契约，并保留 DBLP/CrossRef 反幻觉引用、持久化 **Research Wiki**、human-in-the-loop 检查点，以及可选的 Zotero / Obsidian / GPU 集成。
 
 🔥 *而且这套"广度 / 审 / 记忆"三角能适配任何 agent 的 **ultracode 式深度模式**：广度 pass 适配运行时暴露的能力（Claude Code 原生 ultracode / workflows + Opus 4.8、Codex `spawn_agent`，或纯顺序执行），并按层级干净降级（fan-out → agent spawn → 顺序）。三件事分得很清楚：**广度 · 跨模型对抗审 → 准确性 · research wiki → 记忆性**。无论循环由谁推进，最后都回到同一套跨模型对抗审 + research wiki：**能推进，不能定案**。*
 
 <details>
 <summary><b>完整功能清单</b></summary>
 
-- 📊 **82 个可组合 skill** — 自由混搭，或串联为完整流水线（`/idea-discovery`、`/auto-review-loop`、`/paper-writing`、`/research-pipeline`）。[完整目录 →](docs/SKILLS_CATALOG.md)
+- 📊 **80 个可组合 skill** — 自由混搭，或串联为完整流水线（`/idea-discovery`、`/auto-review-loop`、`/paper-writing`、`/research-pipeline`）。[完整目录 →](docs/SKILLS_CATALOG.md)
 - 🔍 **文献 & 查新** — 多源论文搜索（**[Zotero](docs/integrations/ZOTERO_CN.md)** + **[Obsidian](docs/integrations/OBSIDIAN_CN.md)** + **本地 PDF** + arXiv/Scholar）+ 跨模型查新验证
 - 💡 **Idea 发现** — 文献调研 → 头脑风暴 8-12 个 idea → 查新 → GPU pilot 实验 → 排名报告
 - 🔄 **自动 review 循环** — 4 轮自主审稿，一夜从 5/10 提升到 7.5/10，自动跑 20+ 组 GPU 实验
@@ -589,7 +585,7 @@ ARIS 用 **82 个可组合 skill** 覆盖科研全生命周期——文献查新
 <a id="skills-catalog"></a>
 <a id="-skills-catalog"></a>
 
-ARIS 现有 **82+ 个 skill**，覆盖文献调研、idea 生成、实验、审计、论文写作、演讲、专利、meta 工具等——完整目录（每个 skill 含 role / category / 依赖）在 **[`docs/SKILLS_CATALOG.md`](docs/SKILLS_CATALOG.md)**，独立成文以保持 README 可扫读。
+ARIS 现有 **80+ 个 skill**，覆盖文献调研、idea 生成、实验、审计、论文写作、演讲、专利、meta 工具等——完整目录（每个 skill 含 role / category / 依赖）在 **[`docs/SKILLS_CATALOG.md`](docs/SKILLS_CATALOG.md)**，独立成文以保持 README 可扫读。
 
 <details>
 <summary><b>常用入口</b> —— 场景 → 入口 skill</summary>
@@ -610,7 +606,7 @@ ARIS 现有 **82+ 个 skill**，覆盖文献调研、idea 生成、实验、审�
 
 </details>
 
-→ **[按 category 浏览全部 82 个 skill →](docs/SKILLS_CATALOG.md)**
+→ **[按 category 浏览全部 80 个 skill →](docs/SKILLS_CATALOG.md)**
 
 ---
 
@@ -1323,9 +1319,7 @@ claude   # hooks 立即生效
 
 ### 安装 Skills
 
-> 💡 **推荐：项目级扁平 symlink 安装**（2026-04-20 起）。每个 ARIS skill 独立 symlink 到 `.claude/skills/<skill-name>`，让 Claude Code 的 slash command 自动补全能直接发现。manifest 在 `.aris/installed-skills.txt` 跟踪 ARIS 装了什么——uninstall 和 reconcile 只动 manifest 里的条目，绝不碰你自己的 skill。
->
-> 🤖 **Codex mirror 路线：** Claude 主线继续使用 `install_aris.sh` / `smart_update.sh`。Codex 原生项目安装请用 `install_aris_codex.sh`，Codex copy 安装更新请用 `smart_update_codex.sh`。
+> 💡 **推荐：项目级 Codex 扁平 symlink 安装。** 每个 Codex skill 独立 symlink 到 `.agents/skills/<skill-name>`，manifest `.aris/installed-skills-codex.txt` 只跟踪受管条目；uninstall 和 reconcile 不会碰用户自己的 skill。
 
 ```bash
 # 1. 克隆 ARIS 一次到稳定位置
@@ -1333,73 +1327,49 @@ git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git ~
 
 # 2. 在每个使用 ARIS 的项目里 attach：
 cd ~/your-paper-project
-bash ~/aris_repo/tools/install_aris.sh
-# → 每个 skill 一个 symlink: .claude/skills/<skill> → ~/aris_repo/skills/<skill>
-# → 写 manifest .aris/installed-skills.txt（追踪 ARIS 装的每条）
-# → 更新 CLAUDE.md ARIS 管理块（best-effort + compare-and-swap，不会覆盖用户改动）
+bash ~/aris_repo/tools/install_aris_codex.sh .
+# → 每个 skill 一个 symlink: .agents/skills/<skill> → ~/aris_repo/skills/skills-codex/<skill>
+# → 写 manifest .aris/installed-skills-codex.txt
+# → 更新 AGENTS.md Codex 管理块
 # → 可重入：再跑一次会自动 reconcile 上游的新增/删除
 
 # 3. 已有 skill 的内容更新：直接 git pull（symlink 指向上游，自动跟随）
 cd ~/aris_repo && git pull
 
 # 3a. 上游新增 / 删除 skill 时，重跑安装器（一次的事）：
-bash ~/aris_repo/tools/install_aris.sh ~/your-paper-project
+bash ~/aris_repo/tools/install_aris_codex.sh ~/your-paper-project --reconcile
 
 # 只装需要的 skill（#366 选择性安装；不带参数在 TTY 上进全屏勾选菜单）：
-bash ~/aris_repo/tools/install_aris.sh --list-groups                  # 看 10 个分组
-bash ~/aris_repo/tools/install_aris.sh --groups paper-core,lit-search # 按组装
-bash ~/aris_repo/tools/install_aris.sh --skills paper-writing         # 指定 skill，pipeline 依赖自动带上
-bash ~/aris_repo/tools/install_aris.sh --exclude patent-pipeline      # 反选（记入 declined，更新时不再问）
+bash ~/aris_repo/tools/install_aris_codex.sh . --list-groups                  # 看功能分组
+bash ~/aris_repo/tools/install_aris_codex.sh . --groups paper-core,lit-search # 按组装
+bash ~/aris_repo/tools/install_aris_codex.sh . --skills paper-writing         # 指定 skill，pipeline 依赖自动带上
+bash ~/aris_repo/tools/install_aris_codex.sh . --exclude patent-pipeline      # 反选（记入 declined，更新时不再问）
 # 更新时上游新增的 skill 会逐个二次确认；--add-new 全收 / --skip-new 全跳过
 
 # 其他常用：
-bash ~/aris_repo/tools/install_aris.sh --dry-run        # 看计划，不写盘
-bash ~/aris_repo/tools/install_aris.sh --uninstall      # 按 manifest 卸载（不动你自己的 skill）
-bash ~/aris_repo/tools/install_aris.sh --from-old       # 从老的 .claude/skills/aris/ 嵌套布局迁移
-
-# Windows（PowerShell，需要管理员权限或开发者模式以创建 junction）：
-.\tools\install_aris.ps1 C:\path\to\your-paper-project
+bash ~/aris_repo/tools/install_aris_codex.sh . --dry-run        # 看计划，不写盘
+bash ~/aris_repo/tools/install_aris_codex.sh . --uninstall      # 按 manifest 卸载（不动你自己的 skill）
 ```
 
 **为什么 git pull 不能完全代替重跑安装器：** 扁平布局是每个 skill 一个 symlink，所以上游**新增/删除** skill 时，project 里要新增/移除对应的 symlink——这一步只能由安装器做。这个代价换来了 Claude Code 的自动 slash command 发现（CC 只扫一层目录）。
 
 <details>
-<summary><b>从老的嵌套布局迁移（2026-04-20 之前的安装）</b></summary>
+<summary><b>旧安装</b></summary>
 
-如果你之前用的是 `install_aris.sh`（创建 `.claude/skills/aris/` 嵌套 symlink）或 `smart_update.sh --target-subdir .claude/skills/aris`（嵌套 copy），那你的 slash command 大概率没被 Claude Code 自动发现。迁移到扁平布局：
-
-```bash
-# Symlink 老安装：
-bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old
-
-# Copy 老安装（可能有本地编辑——需要显式选策略）：
-bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old --migrate-copy keep-user
-#   → 保留嵌套 .claude/skills/aris/ 不动，扁平 symlink 装在旁边
-bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old --migrate-copy prefer-upstream
-#   → 把嵌套副本归档到 .aris/legacy-copy-backup-<timestamp>/，再扁平化
-```
+本 G-03 checkout 刻意不包含旧版 Claude/Windows 安装器。如果旧项目仍有
+`.claude/skills/` 条目，请手动移除或归档，然后运行
+`install_aris_codex.sh --reconcile`。
 
 </details>
 
 <details>
-<summary><b>其他安装方式（进阶）</b></summary>
+<summary><b>Codex copy 安装</b></summary>
 
-**项目级 copy（不要 symlink，适合需要为单个项目定制 skill 内容）：**
 ```bash
-mkdir -p ~/your-project/.claude/skills
-bash ~/aris_repo/tools/smart_update.sh --project ~/your-project --apply
-# 默认 --target-subdir 是 .claude/skills（扁平），这是 Claude Code 期望的布局。
-# （老的 --target-subdir .claude/skills/aris 已弃用，见上面的迁移段。）
+mkdir -p ~/.codex/skills
+cp -a ~/aris_repo/skills/skills-codex/. ~/.codex/skills/
+bash ~/aris_repo/tools/smart_update_codex.sh --local ~/.codex/skills --apply
 ```
-
-**全局安装（一份 copy 在 home 目录，所有项目可用）：**
-```bash
-mkdir -p ~/.claude/skills
-cp -r ~/aris_repo/skills/* ~/.claude/skills/
-# 更新：bash tools/smart_update.sh --apply
-```
-
-> 全局安装会增加和其他全局 skill 包名字冲突的风险。只在不混装 ARIS 与 Superpowers / OpenHands 等的情况下使用——否则用上面的项目级安装。
 
 </details>
 
@@ -1438,17 +1408,16 @@ cp -r ~/aris_repo/skills/* ~/.claude/skills/
 cd Auto-claude-code-research-in-sleep
 git pull
 
-# 方案 A：全量更新（用最新版覆盖所有 skill）
-cp -r skills/* ~/.claude/skills/
+# 受管项目：同步新增/删除的 Codex skill
+bash tools/install_aris_codex.sh ~/your-project --reconcile
 
-# 方案 B：安全更新（只加新 skill，保留你的定制）
-cp -rn skills/* ~/.claude/skills/
-
-# 方案 C：只更新指定 skill
-cp -r skills/experiment-bridge ~/.claude/skills/
+# Codex copy install：先预览，再应用
+bash tools/smart_update_codex.sh --local ~/.codex/skills
+bash tools/smart_update_codex.sh --local ~/.codex/skills --apply
 ```
 
-> 💡 **选哪个？** 没改过 skill 用 **A**。改过用 **B**（新 skill 会加进来，你的改动保留——但改过的文件不会收到上游 bug fix）。**C** 精确更新。
+> 💡 受管 symlink 项目使用 `install_aris_codex.sh --reconcile`；手工 copy
+> 项目使用 `smart_update_codex.sh`，不会混用 Claude 安装路径。
 
 ### 🌙 过夜自动运行的免确认配置（可选）
 

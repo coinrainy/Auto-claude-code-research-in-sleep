@@ -28,11 +28,9 @@ Gemini-review routes are disabled by the G-03 Codex-only policy.
 > acceptance_status: provisional
 > ```
 >
-> It must never be described as cross-model acceptance. Install the
-> **`skills-codex-claude-review`** or **`skills-codex-gemini-review`** overlay
-> for `review_independence: cross-family` and `acceptance_status: accepted`.
-> A deterministic verifier may also record accepted. `oracle-pro` is GPT family,
-> so it remains provisional for a Codex executor.
+> It must never be described as cross-model acceptance. G-03 ships no
+> cross-family reviewer overlay. Only a deterministic verifier may record
+> `acceptance_status: accepted`; otherwise the result remains provisional.
 
 ## Default Pattern
 

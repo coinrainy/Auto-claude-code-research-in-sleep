@@ -4,7 +4,7 @@
 
 ## 当前范围
 
-- 基座覆盖：主线 `skills/` 的 `82` 个 skill 全量同步
+- 基座覆盖：主线 `skills/` 的 `80` 个 skill 全量同步
 - 支持目录：`shared-references/`，与主线 `30/30` 名称完整对齐
 - reviewer-heavy skill 的默认 reviewer 契约：
   - 首轮：`spawn_agent`
@@ -12,10 +12,7 @@
   - 推理强度：`xhigh`
   - 基础 Codex 自审：`review_independence: same-family`、
     `acceptance_status: provisional`
-  - Claude/Gemini overlay 或确定性验证：`acceptance_status: accepted`
-- 可选 overlay：
-  - `skills-codex-claude-review`
-  - `skills-codex-gemini-review`
+  - 确定性验证：`acceptance_status: accepted`
 
 ## 推荐安装方式
 
@@ -49,19 +46,11 @@ bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile
 bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --uninstall
 ```
 
-## Overlay 安装
+## G-03 运行边界
 
-先装基座，再选装 overlay：
-
-```bash
-bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile --with-claude-review-overlay
-```
-
-```bash
-bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile --with-gemini-review-overlay
-```
-
-overlay 只替换 reviewer 路由，不替换基座 mirror，也不改变 executor 语义。
+本 checkout 只保留 Codex 基座 mirror，已刻意移除 Claude/Gemini reviewer
+overlay 和其他 reviewer MCP。所有 reviewer 调用固定使用本地
+`gpt-5.5` + `xhigh` 契约；能力不可用时返回 `REVIEW_UNAVAILABLE`。
 
 ## Copy 安装与更新
 

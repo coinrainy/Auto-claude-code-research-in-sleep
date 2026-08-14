@@ -4,7 +4,7 @@ Codex-native mirror and adaptation layer for the main ARIS `skills/` package.
 
 ## Scope
 
-- Base mirror coverage: all `82` mainline skills under `skills/`
+- Base mirror coverage: all `80` mainline skills under `skills/`
 - Support directory: `shared-references/`, with all `30/30` mainline reference names mirrored
 - Default reviewer contract for reviewer-heavy skills:
   - round 1: `spawn_agent`
@@ -12,10 +12,7 @@ Codex-native mirror and adaptation layer for the main ARIS `skills/` package.
   - reasoning effort: `xhigh`
   - base Codex self-review: `review_independence: same-family`,
     `acceptance_status: provisional`
-  - Claude/Gemini overlays or deterministic verification: `acceptance_status: accepted`
-- Optional overlays:
-  - `skills-codex-claude-review`
-  - `skills-codex-gemini-review`
+  - deterministic verification: `acceptance_status: accepted`
 
 This package is still an appendage to the Claude mainline, not a separate Codex-first product line.
 
@@ -51,19 +48,12 @@ Uninstall only managed Codex entries:
 bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --uninstall
 ```
 
-## Optional Overlays
+## G-03 runtime boundary
 
-Install the base first, then choose an overlay:
-
-```bash
-bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile --with-claude-review-overlay
-```
-
-```bash
-bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile --with-gemini-review-overlay
-```
-
-Overlays only replace reviewer routing. They do not replace the base mirror or the executor model.
+This checkout ships only the Codex base mirror. Claude/Gemini reviewer
+overlays and alternate reviewer MCP servers are intentionally excluded.
+Reviewer calls stay on the local `gpt-5.5` + `xhigh` contract; unavailable
+review capability is reported as `REVIEW_UNAVAILABLE`.
 
 ## Copy Install and Update
 

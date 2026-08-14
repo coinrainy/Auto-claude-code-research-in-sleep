@@ -1,6 +1,6 @@
 # ARIS skill catalog — single source of truth for selective install.
-# Consumed by: install_aris.sh / install_aris_codex.sh / install_aris_copilot.sh /
-#              install_aris.ps1 / smart_update*.sh|ps1 / tools/skill_picker.py /
+# Consumed by: install_aris_codex.sh / smart_update_codex.sh /
+#              tools/skill_picker.py / tests
 #              tests/test_skill_groups.py
 #
 # Record types (tab-separated):
@@ -53,8 +53,6 @@ skill	wiki-enrich	ideation	research-wiki	补全 wiki 论文页 TODO
 skill	research-pipeline	ideation	idea-discovery,experiment-bridge,auto-review-loop,render-html	端到端总 pipeline:找 idea→实验→论文
 skill	research-review	review-loop	-	研究方案/结果批判性评审
 skill	auto-review-loop	review-loop	result-to-claim,training-check,render-html	外部模型多轮 review→修复循环
-skill	auto-review-loop-llm	review-loop	-	用任意 OpenAI 兼容 API 做 review
-skill	auto-review-loop-minimax	review-loop	-	用 MiniMax API 做 review
 skill	kill-argument	review-loop	render-html	对抗性双线程评审(最强拒稿论证)
 skill	formula-derivation	theory	-	公式推导与理论线组织
 skill	proof-writer	theory	-	撰写严格数学证明

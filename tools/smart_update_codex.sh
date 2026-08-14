@@ -4,10 +4,6 @@
 # Default upstream:
 #   repo/skills/skills-codex
 #
-# Optional overlays:
-#   --overlay claude-review
-#   --overlay gemini-review
-#
 # Default local targets:
 #   global:  ~/.codex/skills
 #   project: <project>/.agents/skills
@@ -39,7 +35,6 @@ CUSTOM_UPSTREAM=""
 CUSTOM_LOCAL=""
 HAS_CUSTOM_UPSTREAM=false
 HAS_CUSTOM_LOCAL=false
-OVERLAYS=()
 NEW_POLICY=""   # "" (prompt) | add | skip
 
 usage() { sed -n '2,31p' "$0" | sed 's/^# \?//'; }
@@ -52,7 +47,6 @@ while [[ $# -gt 0 ]]; do
         --project) MODE="project"; PROJECT_PATH="${2:?--project requires path}"; shift 2 ;;
         --upstream) MODE="explicit"; HAS_CUSTOM_UPSTREAM=true; CUSTOM_UPSTREAM="${2:?--upstream requires path}"; shift 2 ;;
         --local) MODE="explicit"; HAS_CUSTOM_LOCAL=true; CUSTOM_LOCAL="${2:?--local requires path}"; shift 2 ;;
-        --overlay) OVERLAYS+=("${2:?--overlay requires claude-review or gemini-review}"); shift 2 ;;
         -h|--help) usage; exit 0 ;;
         --*) echo "Unknown option: $1" >&2; exit 2 ;;
         *) echo "Unexpected positional argument: $1" >&2; exit 2 ;;
@@ -67,22 +61,10 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BASE_UPSTREAM="$REPO_ROOT/skills/skills-codex"
 DEFAULT_GLOBAL_LOCAL="$HOME/.codex/skills"
 
-# bash 3.2 (stock macOS): "${ARR[@]}" on an EMPTY array trips `set -u`; guard every
-# possibly-empty expansion with a length check (repo-wide idiom).
-if [[ ${#OVERLAYS[@]} -gt 0 ]]; then
-    for overlay in "${OVERLAYS[@]}"; do
-        case "$overlay" in
-            claude-review|gemini-review) ;;
-            *) die "--overlay must be claude-review or gemini-review (got: $overlay)" ;;
-        esac
-    done
-fi
-
 case "$MODE" in
     explicit)
         $HAS_CUSTOM_LOCAL || die "--local must be provided when using --upstream"
         if $HAS_CUSTOM_UPSTREAM; then
-            [[ ${#OVERLAYS[@]} -eq 0 ]] || die "--overlay is only supported with repo-default upstream"
             UPSTREAM_DIR="$CUSTOM_UPSTREAM"
         else
             UPSTREAM_DIR="$BASE_UPSTREAM"
@@ -149,13 +131,6 @@ while IFS= read -r link_entry; do
     if [[ "$link_name" == "shared-references" || -d "$UPSTREAM_DIR/$link_name" ]]; then
         die "local skill directory contains symlink-managed ARIS entry '$link_name'. Use: git pull && bash $REPO_ROOT/tools/install_aris_codex.sh \"${PROJECT_ROOT:-<project>}\" --reconcile"
     fi
-    if [[ ${#OVERLAYS[@]} -gt 0 ]]; then
-        for overlay in "${OVERLAYS[@]}"; do
-            if [[ -d "$REPO_ROOT/skills/skills-codex-$overlay/$link_name" ]]; then
-                die "local skill directory contains symlink-managed ARIS overlay entry '$link_name'. Use: git pull && bash $REPO_ROOT/tools/install_aris_codex.sh \"${PROJECT_ROOT:-<project>}\" --reconcile"
-            fi
-        done
-    fi
 done < <(find "$LOCAL_DIR" -mindepth 1 -maxdepth 1 -type l)
 
 TMP_ROOT=""
@@ -167,16 +142,6 @@ cleanup() {
     return 0
 }
 trap cleanup EXIT INT TERM
-
-if [[ ${#OVERLAYS[@]} -gt 0 ]]; then
-    TMP_ROOT="$(mktemp -d /tmp/aris-codex-update.XXXXXX)"
-    MERGED_UPSTREAM="$TMP_ROOT/upstream"
-    mkdir -p "$MERGED_UPSTREAM"
-    cp -a "$BASE_UPSTREAM/." "$MERGED_UPSTREAM/"
-    for overlay in "${OVERLAYS[@]}"; do
-        cp -a "$REPO_ROOT/skills/skills-codex-$overlay/." "$MERGED_UPSTREAM/"
-    done
-fi
 
 UPSTREAM_DIR="$MERGED_UPSTREAM"
 
@@ -222,11 +187,6 @@ while IFS= read -r name; do
         IDENTICAL_SKILLS+=("$name")
         continue
     fi
-    if [[ ${#OVERLAYS[@]} -gt 0 && -d "$BASE_UPSTREAM/$name" ]] && diff -qr "$BASE_UPSTREAM/$name" "$local_entry" >/dev/null 2>&1; then
-        SAFE_UPDATE=$((SAFE_UPDATE + 1))
-        SAFE_SKILLS+=("$name")
-        continue
-    fi
     # Unlike managed installs, copied installs have no manifest/baseline telling us
     # whether a diff is upstream-only or includes local edits. Be conservative:
     # any non-identical local entry requires manual merge instead of replacement.
@@ -265,9 +225,6 @@ log "ARIS Codex Smart Update"
 log "  Scope:    $SCOPE"
 log "  Upstream: $UPSTREAM_DIR"
 log "  Local:    $LOCAL_DIR"
-if [[ ${#OVERLAYS[@]} -gt 0 ]]; then
-    log "  Overlays: ${OVERLAYS[*]}"
-fi
 log ""
 
 log "Identical: $IDENTICAL"

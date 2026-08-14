@@ -70,17 +70,17 @@ cd ~/your-paper-project
 bash ~/aris_repo/tools/install_aris_codex.sh . --all --quiet
 
 # 只装需要的 skill（选择性安装）：
-bash ~/aris_repo/tools/install_aris.sh --list-groups                  # 查看 10 个功能分组
-bash ~/aris_repo/tools/install_aris.sh --groups paper-core,lit-search # 按组安装
-bash ~/aris_repo/tools/install_aris.sh --skills paper-writing         # 按 skill 安装（依赖自动带上）
+bash ~/aris_repo/tools/install_aris_codex.sh . --list-groups                  # 查看功能分组
+bash ~/aris_repo/tools/install_aris_codex.sh . --groups paper-core,lit-search # 按组安装
+bash ~/aris_repo/tools/install_aris_codex.sh . --skills paper-writing         # 按 skill 安装（依赖自动带上）
 # 全新安装时不带任何选择参数（且在终端里跑）会进入全屏勾选菜单（空格勾选，组行整组切换）
 
 # 其他常用：
-bash ~/aris_repo/tools/install_aris.sh --dry-run        # 预览安装计划，不实际执行
-bash ~/aris_repo/tools/install_aris.sh --uninstall      # 按安装清单卸载，不影响其他文件
+bash ~/aris_repo/tools/install_aris_codex.sh . --dry-run        # 预览安装计划，不实际执行
+bash ~/aris_repo/tools/install_aris_codex.sh . --uninstall      # 按安装清单卸载，不影响其他文件
 ```
 
-脚本会显示安装计划并要求确认（输入 `y`），详见 [`install_aris.sh`](tools/install_aris.sh)：
+脚本会显示安装计划并要求确认（输入 `y`），详见 [`install_aris_codex.sh`](tools/install_aris_codex.sh)：
 
 ```
 .agents/skills/<skill>        ← 每个 skill 一个符号链接 → ~/aris_repo/skills/skills-codex/<skill>
@@ -105,21 +105,11 @@ bash ~/aris_repo/tools/install_aris_codex.sh . --reconcile
 ### 3.2 MCP 服务
 
 G-03 不注册 Claude/Gemini/Oracle/Copilot 审稿 MCP。Codex mirror 使用原生
-Codex 审稿契约，所有审稿调用固定为 `gpt-5.5` + `xhigh`。下面的表格仅
-保留上游其他组合的说明。
-
-根据你选择的模型组合，除了 Step 1.2 中已注册的默认 `codex` MCP 外，你可能还需要注册额外的 MCP 服务。ARIS 提供了以下 MCP 服务：
+Codex 审稿契约，所有审稿调用固定为 `gpt-5.5` + `xhigh`。项目只保留可选的图像工具 MCP：
 
 | MCP 服务 | 注册到 | 适用场景 | 注册方式 |
 |---|---|---|---|
-| `codex` | Claude Code | 默认配置（Claude + GPT 审稿） | `claude mcp add codex -s user -- codex mcp-server`（Step 1.2 已完成） |
-| `claude-review` | Codex CLI | 使用 Codex 作为执行者、Claude 作为审稿人 | `codex mcp add claude-review -- python3 ~/.codex/mcp-servers/claude-review/server.py`（详见 `mcp-servers/claude-review/README.md`） |
-| `gemini-review` | Codex CLI | 使用 Codex 作为执行者、Gemini 作为审稿人 | `codex mcp add gemini-review --env GEMINI_REVIEW_BACKEND=api -- python3 ~/.codex/mcp-servers/gemini-review/server.py`（详见 `mcp-servers/gemini-review/README.md`） |
-| `llm-chat` | Claude Code | 使用任意 OpenAI 兼容 API 作为审稿人 | `claude mcp add llm-chat -s user -- python3 /path/to/aris_repo/mcp-servers/llm-chat/server.py`（详见 `docs/LLM_API_MIX_MATCH_GUIDE.md`） |
-| `minimax-chat` | Claude Code | 使用 MiniMax 作为审稿人（无需 OpenAI Key） | 详见 `docs/MINIMAX_MCP_GUIDE.md` |
-| `manual-review` | Claude Code | 人工手动审稿 | `claude mcp add manual-review -s user -- python3 /path/to/aris_repo/mcp-servers/manual-review/server.py` |
-| `feishu-bridge` | —（独立 HTTP 服务） | 飞书通知集成 | 详见 `mcp-servers/feishu-bridge/` |
-| `codex-image2` | Claude Code | 增强的 Codex 图片生成 | 详见 `mcp-servers/codex-image2/` |
+| `codex-image2` | Codex CLI | 可选图像处理 | 详见 `mcp-servers/codex-image2/` |
 
 > **⚠️ 重要提示**：注册或修改任何 MCP 服务后，**必须重启 Claude Code** 才能生效。MCP 配置在启动时加载。正确顺序：注册所需 MCP 服务 → 重启 Claude Code → 开始使用 ARIS 工作流。
 

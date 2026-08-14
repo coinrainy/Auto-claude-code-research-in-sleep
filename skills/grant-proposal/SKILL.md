@@ -469,7 +469,7 @@ Invoke `/research-review` on the complete draft for grant-type-specific evaluati
 - Provides ranked action items for improvement
 - All feedback saved to `grant-proposal/GRANT_REVIEW.md`
 
-> ⚠️ **Codex MCP fallback**: If `mcp__codex__codex` is not available (no OpenAI API key), skip external review. Note "External review skipped — no Codex MCP available. Consider running `/auto-review-loop-llm` separately." in GRANT_REVIEW.md. The proposal is still usable without external review.
+> ⚠️ **Codex reviewer fallback**: If the Codex reviewer is not available, skip external review. Note "External review skipped — no Codex reviewer available. Consider running `/auto-review-loop` separately." in GRANT_REVIEW.md. The proposal is still usable without external review.
 
 If `/research-review` is invoked (preferred), it handles the Codex call internally. If calling Codex directly (e.g., to maintain thread context from Phase 2):
 

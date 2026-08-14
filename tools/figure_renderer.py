@@ -6,7 +6,7 @@ The canonical implementation now lives at
 (Phase 3.1 — Arch C — self-contained single-owner helper).
 
 This shim exists so existing users keep working without re-running
-install_aris.sh. The four legacy resolver layers all still hit a
+ install_aris_codex.sh. The four legacy resolver layers all still hit a
 valid Python module:
 
   layer 1  <project>/.aris/tools/figure_renderer.py
@@ -56,7 +56,7 @@ def main() -> int:
             "       The Phase 3.1 migration moved this helper into the\n"
             "       /figure-spec SKILL ('skills/figure-spec/scripts/'). Your\n"
             "       local checkout may be incomplete — try `git pull` from the\n"
-            "       ARIS repo, or rerun `bash tools/install_aris.sh` to refresh\n"
+            "       ARIS repo, or rerun `bash tools/install_aris_codex.sh` to refresh\n"
             "       the project-local symlink chain."
         )
     # os.execv replaces this Python process; argv[0] is the real path so

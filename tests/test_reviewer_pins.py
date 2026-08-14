@@ -24,10 +24,8 @@ FLOOR = {"xhigh", "max", "ultra"}
 MODEL_RE = re.compile(r"^\s*(?:- )?`?[\"']?model[\"']?`?:\s*(?:[\"'`]?gpt-|REVIEWER_MODEL)", re.M)
 EFFORT_RE = re.compile(r"(?:model_)?reasoning_effort[\"'`]?:\s*[\"'`]?([a-z]+)")
 
-# Generated/derived packs are validated by their own generators, and the
-# llm-chat pack intentionally strips Codex pins.
-EXCLUDED_DIRS = ("skills-codex-claude-review", "skills-codex-gemini-review",
-                 "auto-review-loop-llm", "auto-review-loop-minimax")
+# G-03 ships one Codex reviewer path, so every retained skill is in scope.
+EXCLUDED_DIRS = ()
 
 
 def _fenced_blocks(text):

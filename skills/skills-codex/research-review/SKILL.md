@@ -7,15 +7,15 @@ description: "Get a deep critical review of research from GPT using a secondary 
 
 > **Codex assurance:** the fresh base reviewer is same-family. Record
 > `review_independence: same-family` and `acceptance_status: provisional` in
-> traces and deliverables. A Claude/Gemini overlay may record cross-family
-> accepted; an unavailable reviewer is BLOCKED, never a fabricated PASS.
+> traces and deliverables. G-03 ships no cross-family reviewer overlay; an
+> unavailable reviewer is BLOCKED, never a fabricated PASS.
 
 Get a multi-round critical review of research work from an external LLM with maximum reasoning depth.
 
 ## Constants
 
 - REVIEWER_MODEL = `gpt-5.5` — Model used via a secondary Codex agent, reasoning effort `xhigh` (deep-audit tier). Must be an OpenAI model (e.g., `gpt-5.5`, `gpt-5.5`, `o3`)
-- **REVIEWER_BACKEND = `codex`** — Default: Codex xhigh reviewer (deep-audit tier). Use `--reviewer: oracle-pro` only when explicitly requested; if Oracle is unavailable, warn and fall back to Codex at this skill's declared tier (`xhigh`). **Same-family note:** this default reviewer is a second Codex/GPT agent — valid for Type-A completeness/drive review, but not a cross-family Type-B verdict; install a `skills-codex-claude-review` / `skills-codex-gemini-review` overlay for a cross-family acquittal (see `shared-references/reviewer-routing.md`).
+- **REVIEWER_BACKEND = `codex`** — Default: Codex xhigh reviewer (deep-audit tier). G-03 does not enable Oracle or cross-family overlays; if the pinned reviewer is unavailable, emit `REVIEW_UNAVAILABLE`. **Same-family note:** this reviewer is valid for Type-A completeness/drive review, but not a cross-family Type-B verdict (see `shared-references/reviewer-routing.md`).
 
 ## Context: $ARGUMENTS
 

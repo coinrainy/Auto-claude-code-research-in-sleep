@@ -10,10 +10,6 @@
 # Default package set:
 #   - skills/skills-codex
 #
-# Optional overlays:
-#   --with-claude-review-overlay
-#   --with-gemini-review-overlay
-#
 # Usage:
 #   bash tools/install_aris_codex.sh [project_path] [options]
 #
@@ -40,8 +36,6 @@
 #
 # Options:
 #   --aris-repo PATH                 override repo discovery
-#   --with-claude-review-overlay     install skills-codex-claude-review on top
-#   --with-gemini-review-overlay     install skills-codex-gemini-review on top
 #   --dry-run                        show plan, no writes
 #   --quiet                          no prompts
 #   --no-doc                         skip AGENTS.md managed block update
@@ -72,8 +66,6 @@ DRY_RUN=false
 QUIET=false
 NO_DOC=false
 CLEAR_STALE_LOCK=false
-WITH_CLAUDE_OVERLAY=false
-WITH_GEMINI_OVERLAY=false
 REPLACE_LINK_NAMES=()
 SELECT_GROUPS=""     # comma list from --groups
 SELECT_SKILLS=""     # comma list from --skills
@@ -89,8 +81,6 @@ while [[ $# -gt 0 ]]; do
         --reconcile) ACTION="reconcile"; shift ;;
         --uninstall) ACTION="uninstall"; shift ;;
         --aris-repo) ARIS_REPO_OVERRIDE="${2:?--aris-repo requires path}"; shift 2 ;;
-        --with-claude-review-overlay) WITH_CLAUDE_OVERLAY=true; shift ;;
-        --with-gemini-review-overlay) WITH_GEMINI_OVERLAY=true; shift ;;
         --dry-run) DRY_RUN=true; shift ;;
         --quiet) QUIET=true; shift ;;
         --no-doc) NO_DOC=true; shift ;;
@@ -190,10 +180,7 @@ resolve_aris_repo() {
 }
 
 selected_packages() {
-    local packages=("$BASE_PACKAGE")
-    $WITH_CLAUDE_OVERLAY && packages+=("skills-codex-claude-review")
-    $WITH_GEMINI_OVERLAY && packages+=("skills-codex-gemini-review")
-    printf "%s\n" "${packages[@]}"
+    printf "%s\n" "$BASE_PACKAGE"
 }
 
 build_upstream_inventory() {
@@ -228,16 +215,15 @@ build_upstream_inventory() {
         die "upstream inventory empty"
     fi
 
-    # Keep the last entry for duplicate names so overlays override the base
-    # package, then sort by skill/support name for deterministic plans.
+    # Sort by skill/support name for deterministic plans.
     awk -F'|' '{row[$2]=$0} END {for (name in row) print row[name]}' "$tmp" | sort -t'|' -k2,2 > "$out"
     rm -f "$tmp"
 }
 
 # --- Selective install (#366, ported from install_aris.sh) ---
 # Upstream rows here are 3-field (kind|name|source_rel) because a name may be
-# sourced from the base package or an overlay; catalog skill names match the
-# mainline skill names 1:1 (mirror directories share names with skills/<name>).
+# catalog skill names match the mainline skill names 1:1 (mirror directories
+# share names with skills/<name>).
 
 catalog_ok() { [[ -n "${CATALOG_PATH:-}" && -f "$CATALOG_PATH" ]]; }
 catalog_groups() { awk -F'\t' '$1=="group"{print $2 "\t" $3 "\t" $4}' "$CATALOG_PATH"; }

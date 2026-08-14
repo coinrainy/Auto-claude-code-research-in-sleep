@@ -72,17 +72,17 @@ cd ~/your-paper-project
 bash ~/aris_repo/tools/install_aris_codex.sh . --all --quiet
 
 # Install only what you need (selective install):
-bash ~/aris_repo/tools/install_aris.sh --list-groups                  # show the 10 skill groups
-bash ~/aris_repo/tools/install_aris.sh --groups paper-core,lit-search # install by group
-bash ~/aris_repo/tools/install_aris.sh --skills paper-writing         # by skill (hard deps auto-included)
+bash ~/aris_repo/tools/install_aris_codex.sh . --list-groups                  # show the skill groups
+bash ~/aris_repo/tools/install_aris_codex.sh . --groups paper-core,lit-search # install by group
+bash ~/aris_repo/tools/install_aris_codex.sh . --skills paper-writing         # by skill (hard deps auto-included)
 # A fresh install with no selection flags (run in a terminal) opens a checkbox picker (Space toggles, group rows toggle all)
 
 # Other useful flags:
-bash ~/aris_repo/tools/install_aris.sh --dry-run        # preview install plan, no changes
-bash ~/aris_repo/tools/install_aris.sh --uninstall      # uninstall per manifest, leaves other files intact
+bash ~/aris_repo/tools/install_aris_codex.sh . --dry-run        # preview install plan, no changes
+bash ~/aris_repo/tools/install_aris_codex.sh . --uninstall      # uninstall per manifest, leaves other files intact
 ```
 
-The script shows an install plan and asks for confirmation (type `y`). See [`install_aris.sh`](tools/install_aris.sh):
+The script shows an install plan and asks for confirmation (type `y`). See [`install_aris_codex.sh`](tools/install_aris_codex.sh):
 
 ```
 .agents/skills/<skill>        ← one symlink per skill → ~/aris_repo/skills/skills-codex/<skill>
@@ -108,21 +108,11 @@ bash ~/aris_repo/tools/install_aris_codex.sh . --reconcile
 
 G-03 does not register Claude/Gemini/Oracle/Copilot reviewer MCP servers. The
 Codex mirror uses the native Codex reviewer contract and keeps all reviewer
-calls at `gpt-5.5` + `xhigh`. The remaining table documents upstream
-alternative combinations only.
-
-Depending on your model combination, you may need to register additional MCP servers beyond the default `codex` registered in Step 1.2. ARIS ships the following MCP servers:
+calls at `gpt-5.5` + `xhigh`. The only bundled optional MCP is image tooling:
 
 | MCP Server | Registered Into | Required When | Registration Method |
 |---|---|---|---|
-| `codex` | Claude Code | Default setup (Claude + GPT review) | `claude mcp add codex -s user -- codex mcp-server` (already done in Step 1.2) |
-| `claude-review` | Codex CLI | Using Codex as executor with Claude as reviewer | `codex mcp add claude-review -- python3 ~/.codex/mcp-servers/claude-review/server.py` (see `mcp-servers/claude-review/README.md`) |
-| `gemini-review` | Codex CLI | Using Codex as executor with Gemini as reviewer | `codex mcp add gemini-review --env GEMINI_REVIEW_BACKEND=api -- python3 ~/.codex/mcp-servers/gemini-review/server.py` (see `mcp-servers/gemini-review/README.md`) |
-| `llm-chat` | Claude Code | Using arbitrary OpenAI-compatible API as reviewer | `claude mcp add llm-chat -s user -- python3 /path/to/aris_repo/mcp-servers/llm-chat/server.py` (see `docs/LLM_API_MIX_MATCH_GUIDE.md`) |
-| `minimax-chat` | Claude Code | Using MiniMax as reviewer (no OpenAI key needed) | See `docs/MINIMAX_MCP_GUIDE.md` |
-| `manual-review` | Claude Code | Human-in-the-loop manual review | `claude mcp add manual-review -s user -- python3 /path/to/aris_repo/mcp-servers/manual-review/server.py` |
-| `feishu-bridge` | — (standalone HTTP service) | Receiving notifications via Feishu/飞书 | See `mcp-servers/feishu-bridge/` |
-| `codex-image2` | Claude Code | Enhanced image processing in Codex | See `mcp-servers/codex-image2/` |
+| `codex-image2` | Codex CLI | Optional image processing | See `mcp-servers/codex-image2/` |
 
 > **⚠️ Important**: After registering or modifying any MCP server, you **must restart Claude Code** for the changes to take effect. MCP configurations are loaded at startup. Correct order: register all needed MCP servers → restart Claude Code → start using ARIS workflows.
 

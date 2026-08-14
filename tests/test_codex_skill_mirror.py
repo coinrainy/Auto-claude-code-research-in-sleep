@@ -12,8 +12,6 @@ from tools.check_skills_inventory import check_inventory
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MAIN_SKILLS = REPO_ROOT / "skills"
 CODEX_SKILLS = REPO_ROOT / "skills" / "skills-codex"
-CLAUDE_OVERLAY = REPO_ROOT / "skills" / "skills-codex-claude-review"
-GEMINI_OVERLAY = REPO_ROOT / "skills" / "skills-codex-gemini-review"
 
 
 def skill_names(root: Path) -> set[str]:
@@ -35,7 +33,7 @@ def has_send_input_block(text: str) -> bool:
 def test_codex_skill_set_matches_mainline() -> None:
     main_names = skill_names(MAIN_SKILLS)
     codex_names = skill_names(CODEX_SKILLS)
-    assert len(main_names) == 82
+    assert len(main_names) == 80
     assert main_names == codex_names
 
 
@@ -47,14 +45,14 @@ def test_codex_shared_reference_set_matches_mainline() -> None:
 
 
 def test_codex_mirror_shared_reference_links_resolve() -> None:
-    """Every `shared-references/<name>.md` PATH reference in a mirror or overlay
+    """Every `shared-references/<name>.md` path reference in the mirror
     SKILL.md must resolve to a file that exists in the mirror's own
     shared-references/. The mirror now carries the complete mainline reference
     name set, with Codex-specific normative adaptation notes. This guards against
     the dangling-reference class while the set-equality test guards omissions."""
     ref_re = re.compile(r"shared-references/([a-z0-9-]+\.md)")
     mirror_refs = {p.name for p in (CODEX_SKILLS / "shared-references").glob("*.md")}
-    roots = [CODEX_SKILLS, CLAUDE_OVERLAY, GEMINI_OVERLAY]
+    roots = [CODEX_SKILLS]
     dangling: list[str] = []
     for root in roots:
         for skill_md in root.glob("*/SKILL.md"):
@@ -222,27 +220,6 @@ def test_codex_review_assurance_is_explicit_and_honest() -> None:
         assert stale_claim.lower() not in shared_reference_text.lower(), \
             f"Codex mirror retains false cross-model claim: {stale_claim}"
 
-    for overlay in (CLAUDE_OVERLAY, GEMINI_OVERLAY):
-        for skill_file in overlay.glob("*/SKILL.md"):
-            text = read(skill_file)
-            assert "review_independence: cross-family" in text
-            assert "acceptance_status: accepted" in text
-            assert "acceptance_status: provisional" not in text
-
-    for skill_file in CLAUDE_OVERLAY.glob("*/SKILL.md"):
-        text = read(skill_file)
-        assert "spawn_agent" not in text, \
-            f"{skill_file.relative_to(REPO_ROOT)} leaked the base Codex reviewer route"
-        assert "send_input" not in text, \
-            f"{skill_file.relative_to(REPO_ROOT)} leaked the base Codex continuation route"
-        assert "agent_id" not in text, \
-            f"{skill_file.relative_to(REPO_ROOT)} must persist Claude threadId, not Codex agent_id"
-        assert "GPT-5.5" not in text and "Codex/GPT" not in text, \
-            f"{skill_file.relative_to(REPO_ROOT)} must not retain a non-Claude reviewer identity"
-        assert "mcp__claude-review__review_start" in text
-        assert "mcp__claude-review__review_status" in text
-
-
 def test_codex_auto_review_has_one_receipt_append_phase() -> None:
     text = read(CODEX_SKILLS / "auto-review-loop" / "SKILL.md")
     gate = text.split("#### Phase B.5.1: Stop-Evaluation Gate", 1)[1].split(
@@ -254,38 +231,6 @@ def test_codex_auto_review_has_one_receipt_append_phase() -> None:
     assert '"trace_id":"<skill>/<YYYY-MM-DD>_run<NN>"' in text
     assert "fabricated `trace_...` identifier" in text
     assert 'round 3 (score=8, "ready")' not in text
-
-
-def test_overlay_boundaries_are_exact() -> None:
-    expected_claude = {
-        "auto-paper-improvement-loop",
-        "auto-review-loop",
-        "novelty-check",
-        "paper-figure",
-        "paper-plan",
-        "paper-write",
-        "research-refine",
-        "research-review",
-    }
-    expected_gemini = {
-        "auto-paper-improvement-loop",
-        "auto-review-loop",
-        "grant-proposal",
-        "idea-creator",
-        "idea-discovery",
-        "idea-discovery-robot",
-        "novelty-check",
-        "paper-figure",
-        "paper-plan",
-        "paper-poster-html",
-        "paper-slides",
-        "paper-write",
-        "paper-writing",
-        "research-refine",
-        "research-review",
-    }
-    assert skill_names(CLAUDE_OVERLAY) == expected_claude
-    assert skill_names(GEMINI_OVERLAY) == expected_gemini
 
 
 def test_non_degrading_skill_rules_are_documented() -> None:

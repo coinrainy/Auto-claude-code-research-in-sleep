@@ -3,8 +3,8 @@
 
 Covers the bug that left a real user's research-wiki/ empty for a week:
 caller skills hard-coded `python3 tools/research_wiki.py`, which silently
-fails when <project>/tools/ is not on disk (the post-install_aris.sh
-default — install_aris.sh creates .aris/tools symlink, not tools/).
+fails when <project>/tools/ is not on disk (the project-local Codex installer
+creates the .aris/tools symlink, not tools/).
 
 The fix is a 4-layer resolution chain documented in
 skills/shared-references/wiki-helper-resolution.md (layer 4, added in
@@ -40,7 +40,7 @@ HELPER = REPO_ROOT / "tools" / "research_wiki.py"
 # exit the same way `awk` does.
 RESOLUTION_CHAIN = r'''
 cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" || exit 1
-ARIS_REPO="${ARIS_REPO:-$(awk -F'\t' '$1=="repo_root"{print $2; exit}' .aris/installed-skills.txt 2>/dev/null)}"
+ARIS_REPO="${ARIS_REPO:-$(awk -F'\t' '$1=="repo_root"{print $2; exit}' .aris/installed-skills-codex.txt 2>/dev/null)}"
 if [ -z "${ARIS_REPO:-}" ] && [ -f "$HOME/.aris/repo" ]; then
     ARIS_REPO=$(cat "$HOME/.aris/repo" 2>/dev/null) || true
 fi
@@ -71,7 +71,7 @@ def _run_chain(cwd: Path, env_overrides: dict | None = None, home: Path | None =
     env = os.environ.copy()
     env.pop("ARIS_REPO", None)
     # Hermetic $HOME: a real dev machine may already have a ~/.aris/repo
-    # pointer file (written by install_aris.sh/smart_update.sh, #366),
+    # pointer file (written by smart_update_codex.sh),
     # which would make layer-4 fire unexpectedly in tests that are only
     # meant to exercise layers 1-3, or in the helper-missing test.
     if home is not None:
@@ -104,7 +104,7 @@ class ChainTest(unittest.TestCase):
         shutil.rmtree(self.tmp, ignore_errors=True)
 
     # ------------------------------------------------------------------
-    # Layer 1: .aris/tools/ symlink (post-install_aris.sh default)
+    # Layer 1: .aris/tools/ symlink (post-install_aris_codex.sh default)
     # ------------------------------------------------------------------
     def test_layer1_symlink(self):
         """Helper at .aris/tools/research_wiki.py -> <repo>/tools/."""
@@ -178,7 +178,7 @@ class ChainTest(unittest.TestCase):
     def test_layer3_manifest_repo_root(self):
         """ARIS_REPO unset; install manifest contains repo_root field."""
         (self.project / ".aris").mkdir()
-        manifest = self.project / ".aris" / "installed-skills.txt"
+        manifest = self.project / ".aris" / "installed-skills-codex.txt"
         manifest.write_text(f"repo_root\t{REPO_ROOT}\n")
 
         result = _run_chain(self.project, home=self.home)

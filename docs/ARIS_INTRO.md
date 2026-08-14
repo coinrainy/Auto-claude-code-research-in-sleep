@@ -4,7 +4,7 @@
 
 ## TL;DR
 
-ARIS is a collection of **82 composable Claude Code skills** that orchestrate **cross-model collaboration**: Claude Code drives the research (reads files, writes code, deploys experiments) while an external LLM (GPT-5.6-Sol via [Codex MCP](https://github.com/openai/codex)) acts as a critical reviewer. The two models disagree, debate, and force each other to do better — adversarial, not self-play.
+ARIS is a collection of **80 composable Codex skills** in this G-03 checkout. Codex drives the research and uses a fresh same-family reviewer at **`gpt-5.5` + `xhigh`**; positive reviewer results remain provisional rather than cross-model acceptance.
 
 Seven workflows (W1 / W1.5 / W2 / W3 / W4 / W5 / W6) compose into a full research lifecycle: idea discovery → experiment bridge → auto-review → paper writing → rebuttal → resubmit → conference talk. Tested end-to-end on real ICLR/NeurIPS submissions. Score progression on a real overnight run: **5/10 → 7.5/10 with 20+ GPU experiments**.
 
@@ -263,7 +263,7 @@ A real overnight 4-round run on an ML research project, from borderline reject t
 
 ---
 
-## The 82 Skills
+## The 80 Skills
 
 Grouped by role (full catalog: [`docs/SKILLS_CATALOG.md`](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/docs/SKILLS_CATALOG.md)).
 
@@ -310,7 +310,7 @@ ARIS skills are plain `SKILL.md` files. They run anywhere an agent reads markdow
 
 ## 中文版速览
 
-ARIS（**A**utonomous **R**esearch via Adversarial **M**ulti-Agent Collaboration，**梦中科研**）是一组 82 个可组合的 Claude Code skills，编排**跨模型对抗式协作**：
+ARIS（**A**utonomous **R**esearch via Adversarial **M**ulti-Agent Collaboration，**梦中科研**）在本 G-03 checkout 中是一组 80 个可组合的 Codex skills，编排固定为 `gpt-5.5` + `xhigh` 的研究与审稿流程：
 
 - **执行**：Claude Code 读文件、写代码、跑实验、改论文
 - **审稿**：GPT-5.6-Sol（via [Codex MCP](https://github.com/openai/codex)）以**跨家族**审稿人身份打分、找弱点、提建议

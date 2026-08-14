@@ -33,8 +33,6 @@ def make_minimal_aris_repo(root: Path) -> Path:
     make_skill(repo / "skills" / "skills-codex" / "beta", "# beta-base\n")
     (repo / "skills" / "skills-codex" / "shared-references").mkdir(parents=True, exist_ok=True)
     (repo / "skills" / "skills-codex" / "shared-references" / "reviewer-routing.md").write_text("base\n")
-    make_skill(repo / "skills" / "skills-codex-claude-review" / "beta", "# beta-claude-overlay\n")
-    make_skill(repo / "skills" / "skills-codex-gemini-review" / "beta", "# beta-gemini-overlay\n")
     return repo
 
 
@@ -96,22 +94,6 @@ def test_install_aris_codex_reconcile_and_uninstall(tmp_path: Path) -> None:
         repo / "skills" / "skills-codex" / "shared-references"
     )
 
-    run(
-        [
-            "bash",
-            str(INSTALL_SCRIPT),
-            str(project),
-            "--aris-repo",
-            str(repo),
-            "--reconcile",
-            "--with-claude-review-overlay",
-            "--quiet",
-        ]
-    )
-    assert (project / ".agents" / "skills" / "beta").resolve() == (
-        repo / "skills" / "skills-codex-claude-review" / "beta"
-    )
-
     (repo / "skills" / "skills-codex" / "alpha").rename(repo / "skills" / "skills-codex" / "alpha-removed")
     make_skill(repo / "skills" / "skills-codex" / "gamma", "# gamma\n")
     # #366 selective install: a plain --quiet reconcile no longer silently adopts
@@ -125,7 +107,6 @@ def test_install_aris_codex_reconcile_and_uninstall(tmp_path: Path) -> None:
             "--aris-repo",
             str(repo),
             "--reconcile",
-            "--with-claude-review-overlay",
             "--add-new",
             "--quiet",
         ]
@@ -410,102 +391,3 @@ def test_smart_update_codex_ignores_local_only_shared_reference_failures(tmp_pat
     assert result.returncode == 0
     assert (local / "alpha" / "SKILL.md").exists()
     assert (local / "local-only" / "SKILL.md").exists()
-
-
-def test_smart_update_codex_local_respects_overlay(tmp_path: Path) -> None:
-    local = tmp_path / "local"
-    local.mkdir()
-
-    run(
-        [
-            "bash",
-            str(UPDATE_SCRIPT),
-            "--local",
-            str(local),
-            "--overlay",
-            "claude-review",
-            "--apply",
-            "--add-new",  # NEW skills now require confirmation/--add-new (#366-style policy)
-        ]
-    )
-
-    installed = (local / "auto-review-loop" / "SKILL.md").read_text()
-    overlay = (
-        REPO_ROOT
-        / "skills"
-        / "skills-codex-claude-review"
-        / "auto-review-loop"
-        / "SKILL.md"
-    ).read_text()
-    base = (REPO_ROOT / "skills" / "skills-codex" / "auto-review-loop" / "SKILL.md").read_text()
-
-    assert installed == overlay
-    assert installed != base
-
-
-def test_smart_update_codex_overlay_updates_existing_base_copy(tmp_path: Path) -> None:
-    local = tmp_path / "local"
-    local.mkdir()
-    base_skill = REPO_ROOT / "skills" / "skills-codex" / "auto-review-loop"
-    overlay_skill = (
-        REPO_ROOT
-        / "skills"
-        / "skills-codex-claude-review"
-        / "auto-review-loop"
-    )
-
-    run(["cp", "-a", str(base_skill), str(local / "auto-review-loop")])
-
-    dry_run = run(
-        [
-            "bash",
-            str(UPDATE_SCRIPT),
-            "--local",
-            str(local),
-            "--overlay",
-            "claude-review",
-        ]
-    )
-    assert "Safe update: 1" in dry_run.stdout
-    assert "  auto-review-loop" in dry_run.stdout
-
-    run(
-        [
-            "bash",
-            str(UPDATE_SCRIPT),
-            "--local",
-            str(local),
-            "--overlay",
-            "claude-review",
-            "--apply",
-        ]
-    )
-
-    assert (local / "auto-review-loop" / "SKILL.md").read_text() == (
-        overlay_skill / "SKILL.md"
-    ).read_text()
-
-
-def test_smart_update_codex_overlay_preserves_custom_local_copy(tmp_path: Path) -> None:
-    local = tmp_path / "local"
-    local.mkdir()
-    base_skill = REPO_ROOT / "skills" / "skills-codex" / "auto-review-loop"
-
-    run(["cp", "-a", str(base_skill), str(local / "auto-review-loop")])
-    custom_text = (local / "auto-review-loop" / "SKILL.md").read_text() + "\n<!-- local customization -->\n"
-    (local / "auto-review-loop" / "SKILL.md").write_text(custom_text)
-
-    result = run(
-        [
-            "bash",
-            str(UPDATE_SCRIPT),
-            "--local",
-            str(local),
-            "--overlay",
-            "claude-review",
-            "--apply",
-        ]
-    )
-
-    assert "Needs merge: 1" in result.stdout
-    assert (local / "auto-review-loop" / "SKILL.md").read_text() == custom_text
